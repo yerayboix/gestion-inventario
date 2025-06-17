@@ -1,8 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { GalleryVerticalEnd, Book, Users, FileText } from "lucide-react"
+import { Book, Users, FileText, LayoutDashboard } from "lucide-react"
 import { SignedIn, UserButton } from "@clerk/nextjs"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 import {
   Sidebar,
@@ -16,27 +18,31 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-
-const DEFAULT_PARENT_ICON = Book
+import { cn } from "@/lib/utils"
 
 const data = {
   navMain: [
     {
-      title: "Resumen",
-      url: "#",
-      icon: GalleryVerticalEnd,
+      title: "Paneles",
+      items: [
+        {
+          title: "Resumen",
+          url: "/",
+          icon: LayoutDashboard,
+        },
+      ],
     },
     {
       title: "Inventario",
       items: [
         {
           title: "Libros",
-          url: "#",
+          url: "/libros",
           icon: Book,
         },
         {
           title: "Clientes",
-          url: "#",
+          url: "/clientes",
           icon: Users,
         },
       ],
@@ -46,7 +52,7 @@ const data = {
       items: [
         {
           title: "Facturas",
-          url: "#",
+          url: "/facturas",
           icon: FileText,
         },
       ],
@@ -55,21 +61,23 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname()
+
   return (
     <Sidebar
       variant="floating"
-      className="max-w-[270px] w-full h-full flex flex-col justify-between"
+      className="max-w-[270px] w-full h-full flex flex-col justify-between bg-gradient-to-b from-background to-muted/20"
       {...props}
     >
       <div>
-        <SidebarHeader>
+        <SidebarHeader className="border-b border-border/40">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild>
                 <div className="flex items-center justify-between gap-3 w-full">
                   <div className="flex flex-col gap-0.5 leading-none max-w-[150px] flex-1">
                     <span
-                      className="font-semibold text-base truncate"
+                      className="font-semibold text-base truncate bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent"
                       title="Gestión de inventario y facturación"
                     >
                       Gestión de inventario y facturación
@@ -87,39 +95,54 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarContent>
           <SidebarGroup>
             <SidebarMenu className="gap-3">
-              {data.navMain.map((item) => {
-                const Icon = item.icon || (item.title !== "Resumen" ? DEFAULT_PARENT_ICON : undefined)
-                return (
-                  <SidebarMenuItem key={item.title}>
+              {data.navMain.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  {item.url ? (
                     <SidebarMenuButton asChild>
-                      <a
+                      <Link
                         href={item.url}
-                        className="font-semibold flex items-center gap-3 py-3 px-4 rounded-lg text-base hover:bg-muted transition-colors"
+                        className={cn(
+                          "font-semibold flex items-center gap-3 py-3 px-4 rounded-lg text-base transition-colors",
+                          pathname === item.url
+                            ? "bg-primary/10 text-primary"
+                            : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+                        )}
                       >
-                        {Icon && <Icon className="w-6 h-6 text-primary" />}
+                        {item.icon && <item.icon className="w-6 h-6" />}
                         <span className="truncate">{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
-                    {item.items?.length ? (
-                      <SidebarMenuSub className="ml-0 border-l-0 px-2">
-                        {item.items.map((subitem) => (
-                          <SidebarMenuSubItem key={subitem.title}>
-                            <SidebarMenuSubButton asChild>
-                              <a
-                                href={subitem.url}
-                                className="flex items-center gap-2 py-2 px-4 rounded hover:bg-accent transition-colors text-base"
-                              >
-                                {subitem.icon && <subitem.icon className="w-5 h-5 text-muted-foreground" />}
-                                <span className="truncate">{subitem.title}</span>
-                              </a>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    ) : null}
-                  </SidebarMenuItem>
-                )
-              })}
+                  ) : (
+                    <div className="px-4 py-2">
+                      <h3 className="text-sm font-semibold text-muted-foreground/70 uppercase tracking-wider">
+                        {item.title}
+                      </h3>
+                    </div>
+                  )}
+                  {item.items?.length ? (
+                    <SidebarMenuSub className="ml-0 border-l-0 px-2">
+                      {item.items.map((subitem) => (
+                        <SidebarMenuSubItem key={subitem.title}>
+                          <SidebarMenuSubButton asChild>
+                            <Link
+                              href={subitem.url}
+                              className={cn(
+                                "flex items-center gap-2 py-2 px-4 rounded transition-colors text-base",
+                                pathname === subitem.url
+                                  ? "bg-primary/10 text-primary"
+                                  : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+                              )}
+                            >
+                              {subitem.icon && <subitem.icon className="w-5 h-5" />}
+                              <span className="truncate">{subitem.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  ) : null}
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>

@@ -3,6 +3,7 @@ import { columns } from "@/app/libros/columns";
 import { getLibros } from "../../lib/data/inventario/libros";
 import { SearchForm } from "@/app/libros/search-form";
 import { DataTable } from "@/components/ui/data-table";
+import { CreateLibroDialog } from "./create-libro-dialog";
 
 interface LibrosPageProps {
   searchParams: {
@@ -20,7 +21,10 @@ export default async function LibrosPage({ searchParams }: LibrosPageProps) {
     <div className="flex flex-1 flex-col gap-4 p-6 py-10">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Libros</h1>
-        <SearchForm defaultValue={searchQuery} />
+        <div className="flex items-center gap-4">
+          <SearchForm defaultValue={searchQuery} />
+          <CreateLibroDialog />
+        </div>
       </div>
       <Suspense key={`${pageNumber}-${searchQuery}`} fallback={<div>Cargando...</div>}>
         <LibrosTable page={pageNumber} titulo={searchQuery} />

@@ -1,6 +1,6 @@
 "use server";
 
-import { updateLibro, deleteLibro } from "../data/inventario/libros";
+import { updateLibro, deleteLibro, createLibro } from "../data/inventario/libros";
 import { revalidatePath } from "next/cache";
 
 export async function updateLibroAction(
@@ -29,5 +29,21 @@ export async function deleteLibroAction(id: number) {
     return { success: true };
   } catch {
     return { success: false, error: "Error al eliminar el libro" };
+  }
+}
+
+export async function createLibroAction(values: {
+  titulo: string;
+  pvp: number;
+  precio: number;
+  descuento: number | null;
+  cantidad: number;
+}) {
+  try {
+    await createLibro(values);
+    revalidatePath("/libros");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Error al crear el libro" };
   }
 } 

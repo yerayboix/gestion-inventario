@@ -21,7 +21,7 @@ export default async function LibrosPage({ searchParams }: LibrosPageProps) {
     <div className="flex flex-1 flex-col gap-4 p-6 py-10">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Libros</h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1">
           <SearchForm defaultValue={searchQuery} />
           <CreateLibroDialog />
         </div>

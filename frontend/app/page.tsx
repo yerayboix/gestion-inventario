@@ -1,7 +1,7 @@
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { getLibros } from "./data/inventario/libros";
+import { getLibros } from "../lib/data/inventario/libros";
 
 export default async function Home() {
   const libros = await getLibros();

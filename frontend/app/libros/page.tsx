@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { columns } from "@/app/libros/columns";
-import { getLibros } from "../data/inventario/libros";
+import { getLibros } from "../../lib/data/inventario/libros";
 import { SearchForm } from "@/app/libros/search-form";
 import { DataTable } from "@/components/ui/data-table";
 

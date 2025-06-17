@@ -2,6 +2,8 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { formatCurrency } from "@/lib/utils";
+import { EditLibroDialog } from "./edit-libro-dialog";
+import { DeleteLibroDialog } from "./delete-libro-dialog";
 
 export type Libro = {
   id: number;
@@ -38,5 +40,21 @@ export const columns: ColumnDef<Libro>[] = [
   {
     accessorKey: "cantidad",
     header: "Cantidad",
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const libro = row.original;
+      return (
+        <div className="flex items-center gap-2">
+          <EditLibroDialog libro={libro} onSuccess={() => {}} />
+          <DeleteLibroDialog
+            libroId={libro.id}
+            libroTitulo={libro.titulo}
+            onSuccess={() => {}}
+          />
+        </div>
+      );
+    },
   },
 ]; 

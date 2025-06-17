@@ -151,7 +151,11 @@ export function EditLibroDialog({ libro, onSuccess }: EditLibroDialogProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={!form.formState.isDirty}
+            >
               Guardar cambios
             </Button>
           </form>

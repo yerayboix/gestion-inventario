@@ -97,28 +97,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenu className="gap-3">
               {data.navMain.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  {item.url ? (
-                    <SidebarMenuButton asChild>
-                      <Link
-                        href={item.url}
-                        className={cn(
-                          "font-semibold flex items-center gap-3 py-3 px-4 rounded-lg text-base transition-colors",
-                          pathname === item.url
-                            ? "bg-primary/10 text-primary"
-                            : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        {item.icon && <item.icon className="w-6 h-6" />}
-                        <span className="truncate">{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  ) : (
-                    <div className="px-4 py-2">
-                      <h3 className="text-sm font-semibold text-muted-foreground/70 uppercase tracking-wider">
-                        {item.title}
-                      </h3>
-                    </div>
-                  )}
+                  <div className="px-4 py-2">
+                    <h3 className="text-sm font-semibold text-muted-foreground/70 uppercase tracking-wider">
+                      {item.title}
+                    </h3>
+                  </div>
                   {item.items?.length ? (
                     <SidebarMenuSub className="ml-0 border-l-0 px-2">
                       {item.items.map((subitem) => (

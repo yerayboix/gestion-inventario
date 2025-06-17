@@ -9,7 +9,9 @@ class LibroFilter(django_filters.FilterSet):
     precio_max = django_filters.NumberFilter(field_name='precio', lookup_expr='lte')
     cantidad_min = django_filters.NumberFilter(field_name='cantidad', lookup_expr='gte')
     cantidad_max = django_filters.NumberFilter(field_name='cantidad', lookup_expr='lte')
+    descuento_min = django_filters.NumberFilter(field_name='descuento', lookup_expr='gte')
+    descuento_max = django_filters.NumberFilter(field_name='descuento', lookup_expr='lte')
 
     class Meta:
         model = Libro
-        fields = ['titulo', 'pvp', 'precio', 'cantidad'] 
+        fields = ['titulo', 'pvp', 'precio', 'cantidad', 'descuento'] 

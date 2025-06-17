@@ -1,8 +1,10 @@
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { getLibros } from "./data/inventario/libros";
 
-export default function Home() {
+export default async function Home() {
+  const libros = await getLibros();
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 px-4">
@@ -21,6 +23,7 @@ export default function Home() {
       </header>
       <div className="flex justify-center items-center">
         <h1 className="text-2xl font-bold">Resumen trimestral de ventas</h1>
+        <pre>{JSON.stringify(libros, null, 2)}</pre>
       </div>
     </>
   );

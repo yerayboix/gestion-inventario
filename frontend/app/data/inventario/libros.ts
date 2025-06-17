@@ -53,3 +53,68 @@ export async function getLibros({ page = 1, pageSize = 10, titulo }: GetLibrosPa
   const data: PaginatedResponse<Libro> = await response.json();
   return data;
 }
+
+export async function createLibro(libro: Omit<Libro, 'id'>) {
+  await requireUser();
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/inventario/libros/`,
+    {
+      method: 'POST',
+      headers: {
+        "X-API-Key": process.env.API_KEY || "",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(libro),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Error al crear el libro");
+  }
+
+  const data: Libro = await response.json();
+  return data;
+}
+
+export async function updateLibro(id: number, libro: Partial<Omit<Libro, 'id'>>) {
+  await requireUser();
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/inventario/libros/${id}/`,
+    {
+      method: 'PATCH',
+      headers: {
+        "X-API-Key": process.env.API_KEY || "",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(libro),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Error al actualizar el libro");
+  }
+
+  const data: Libro = await response.json();
+  return data;
+}
+
+export async function deleteLibro(id: number) {
+  await requireUser();
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/inventario/libros/${id}/`,
+    {
+      method: 'DELETE',
+      headers: {
+        "X-API-Key": process.env.API_KEY || "",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Error al eliminar el libro");
+  }
+}

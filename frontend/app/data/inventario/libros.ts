@@ -20,10 +20,10 @@ interface Libro {
 interface GetLibrosParams {
   page?: number;
   pageSize?: number;
-  search?: string;
+  titulo?: string;
 }
 
-export async function getLibros({ page = 1, pageSize = 10, search }: GetLibrosParams = {}) {
+export async function getLibros({ page = 1, pageSize = 10, titulo }: GetLibrosParams = {}) {
   // Ensure user is authenticated
   await requireUser();
   
@@ -32,8 +32,8 @@ export async function getLibros({ page = 1, pageSize = 10, search }: GetLibrosPa
     page_size: pageSize.toString(),
   });
 
-  if (search) {
-    searchParams.append('search', search);
+  if (titulo) {
+    searchParams.append('titulo', titulo);
   }
 
   const response = await fetch(

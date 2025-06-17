@@ -10,8 +10,8 @@ class Factura(models.Model):
     ]
     numero = models.CharField(max_length=30, blank=True, null=True)
     fecha = models.DateField()
-    cliente = models.CharField(max_length=255)
-    nombre = models.CharField(max_length=255)
+    cliente = models.CharField(max_length=255, blank=True, null=True)
+    nombre = models.CharField(max_length=255, blank=True, null=True)
     nif = models.CharField(max_length=20, blank=True, null=True)
     domicilio = models.CharField(max_length=255, blank=True, null=True)
     cp_ciudad = models.CharField(max_length=100, blank=True, null=True)
@@ -34,7 +34,7 @@ class Factura(models.Model):
         ordering = ["-fecha", "-numero"]
 
     def __str__(self):
-        return f"Factura {self.numero or self.id} - {self.cliente}"
+        return f"Factura {self.numero or self.id} - {self.estado.title()}"
 
 
 class LineaFactura(models.Model):

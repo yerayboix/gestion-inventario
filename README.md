@@ -60,10 +60,30 @@ yarn install
 ```
 
 2. Configurar variables de entorno:
-```bash
-cp .env.example .env.local
-# Editar .env.local con tus configuraciones
-```
+
+  - Configuración en /backend
+
+  ```bash
+      # Django Backend Configuration
+    DJANGO_SECRET_KEY=
+    DJANGO_DEBUG=
+    DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,aws-0-eu-west-3.pooler.supabase.com
+
+    # Database Configuration
+    DATABASE_NAME=
+    DATABASE_USER=
+    DATABASE_HOST=
+    DATABASE_PORT=
+    DATABASE_PASSWORD=
+  ```
+
+  - Configuración en /frontend
+  ```bash
+    # Next.js Frontend Configuration
+    NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api/v1
+    NEXT_PUBLIC_APP_URL=http://localhost:3000
+  ```
+
 
 3. Iniciar servidor de desarrollo:
 ```bash
@@ -83,7 +103,7 @@ yarn dev
 - **Backend**:
   - Django
   - Django REST Framework
-  - Turso (SQLite)
+  - Supabase
   - Python 3.8+
 
 ## Licencia

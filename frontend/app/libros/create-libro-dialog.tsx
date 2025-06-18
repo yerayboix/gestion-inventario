@@ -18,12 +18,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BookOpen, Percent, Package, Plus, Save, Euro } from "lucide-react";
-import { useState } from "react";
+import { BookOpen, Percent, Package, Save, Euro } from "lucide-react";
+import { PlusIcon } from "@/components/ui/plus";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
 import { createLibroAction } from "../../lib/actions/libros-actions";
+import { PlusIconHandle } from "@/components/ui/plus";
 
 const formSchema = z.object({
   titulo: z.string().min(1, "El título es requerido"),
@@ -38,6 +40,7 @@ type FormValues = z.infer<typeof formSchema>;
 export function CreateLibroDialog() {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const plusIconRef = useRef<PlusIconHandle>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -72,15 +75,18 @@ export function CreateLibroDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
+        <Button className="gap-2"
+          onMouseEnter={() => plusIconRef.current?.startAnimation()}
+          onMouseLeave={() => plusIconRef.current?.stopAnimation()}
+        >
+          <PlusIcon ref={plusIconRef} className="h-4 w-4" />
           Crear Libro
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center gap-2">
-            <Plus className="h-5 w-5 text-primary" />
+            <PlusIcon className="text-primary" />
             Crear Libro
           </DialogTitle>
         </DialogHeader>

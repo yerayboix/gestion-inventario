@@ -50,7 +50,7 @@ export async function getFacturas({ page = 1, pageSize = 10, estado, cliente, nu
   return data;
 }
 
-export async function getFactura(id: string) {
+export async function getFactura(id: number) {
   await requireUser();
 
   const response = await fetch(

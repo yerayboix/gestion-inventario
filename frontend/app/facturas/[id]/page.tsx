@@ -15,6 +15,7 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
   const { id } = await params;
   const factura = await getFactura(id);
   const lineas = await getLineasFactura(id);
+  console.log(lineas);
 
   
   if (!factura) {
@@ -55,11 +56,13 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
 
       <Card className="p-6">
         <h2 className="text-lg font-semibold mb-4">Líneas de Factura</h2>
-        {lineas?.results?.map((linea) => (
+        {lineas?.map((linea) => (
           <div key={linea.id}>
             <p>{linea.libro.titulo}</p>
+            <p>{linea.libro.precio}</p>
             <p>{linea.cantidad}</p>
-            <p>{linea.precio}</p>
+            <p>{linea.importe}</p>
+            <p>{linea.descuento}</p>
           </div>
         ))}
       </Card>

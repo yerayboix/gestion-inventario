@@ -12,8 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { LineaFacturaForm } from "@/app/facturas/linea-factura-form";
-import { LineaFactura } from "@/lib/types/facturacion/linea-factura";
 import { CreateFacturaData } from "@/lib/types/facturacion/factura";
+import { CreateLineaFacturaData } from "@/lib/types/facturacion/linea-factura";
 import { createFacturaAction } from "@/lib/actions/facturas-actions";
 
 const facturaSchema = z.object({
@@ -34,7 +34,7 @@ interface FacturaFormProps {
 
 export function FacturaForm({ factura }: FacturaFormProps) {
   const router = useRouter();
-  const [lineas, setLineas] = useState<Omit<LineaFactura, 'id' | 'factura'>[]>([]);
+  const [lineas, setLineas] = useState<CreateLineaFacturaData[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FacturaFormData>({
@@ -81,7 +81,7 @@ export function FacturaForm({ factura }: FacturaFormProps) {
     }
   };
 
-  const handleAddLinea = (linea: Omit<LineaFactura, 'id' | 'factura'>) => {
+  const handleAddLinea = (linea: CreateLineaFacturaData) => {
     setLineas([...lineas, linea]);
   };
 
@@ -91,7 +91,7 @@ export function FacturaForm({ factura }: FacturaFormProps) {
     setLineas(newLineas);
   };
 
-  const handleUpdateLinea = (index: number, linea: Partial<LineaFactura>) => {
+  const handleUpdateLinea = (index: number, linea: Partial<CreateLineaFacturaData>) => {
     const newLineas = [...lineas];
     newLineas[index] = { ...newLineas[index], ...linea };
     setLineas(newLineas);

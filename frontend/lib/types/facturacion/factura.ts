@@ -1,4 +1,5 @@
 import type { LineaFactura } from "../facturacion/linea-factura";
+import type { CreateLineaFacturaData } from "../facturacion/linea-factura";
 
 export type EstadoFactura = "borrador" | "emitida" | "pagada" | "anulada";
 
@@ -41,7 +42,7 @@ export interface CreateFacturaData {
   total?: number;
   notas?: string;
   estado: EstadoFactura;
-  lineas: Omit<LineaFactura, 'id' | 'factura'>[];
+  lineas: CreateLineaFacturaData[];
 }
 
 export interface GetFacturasParams {

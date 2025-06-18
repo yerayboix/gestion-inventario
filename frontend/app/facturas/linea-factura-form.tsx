@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LibroComboboxSimple } from "@/components/ui/libro-combobox-simple";
-import { LineaFactura } from "@/lib/types/facturacion/linea-factura";
+import { CreateLineaFacturaData } from "@/lib/types/facturacion/linea-factura";
 import { Libro } from "@/lib/types/inventario/libro";
 
 interface LineaFacturaFormProps {
-  lineas: Omit<LineaFactura, 'id' | 'factura'>[];
-  onAddLinea: (linea: Omit<LineaFactura, 'id' | 'factura'>) => void;
+  lineas: CreateLineaFacturaData[];
+  onAddLinea: (linea: CreateLineaFacturaData) => void;
   onRemoveLinea: (index: number) => void;
-  onUpdateLinea: (index: number, linea: Partial<Omit<LineaFactura, 'id' | 'factura'>>) => void;
+  onUpdateLinea: (index: number, linea: Partial<CreateLineaFacturaData>) => void;
 }
 
 export function LineaFacturaForm({
@@ -27,14 +27,8 @@ export function LineaFacturaForm({
   const handleAddLinea = () => {
     if (!selectedLibro) return;
 
-    const nuevaLinea: Omit<LineaFactura, 'id' | 'factura'> = {
-      libro: {
-        id: selectedLibro.id,
-        titulo: selectedLibro.titulo,
-        pvp: selectedLibro.pvp,
-        precio: selectedLibro.precio,
-        descuento: selectedLibro.descuento,
-      },
+    const nuevaLinea: CreateLineaFacturaData = {
+      libro: selectedLibro.id, // Solo el ID del libro
       cantidad,
       precio: selectedLibro.precio,
       descuento: null,
@@ -111,7 +105,7 @@ export function LineaFacturaForm({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Libro</TableHead>
+              <TableHead>Libro ID</TableHead>
               <TableHead>Cantidad</TableHead>
               <TableHead>Precio</TableHead>
               <TableHead>Importe</TableHead>
@@ -121,7 +115,7 @@ export function LineaFacturaForm({
           <TableBody>
             {lineas.map((linea, index) => (
               <TableRow key={index}>
-                <TableCell>{linea.libro.titulo}</TableCell>
+                <TableCell>{linea.libro}</TableCell>
                 <TableCell>
                   <Input
                     type="number"

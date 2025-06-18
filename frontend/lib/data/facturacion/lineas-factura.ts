@@ -1,6 +1,5 @@
 "server-only"
 import { requireUser } from "../user/require-user";
-import type { PaginatedResponse } from "@/lib/types/common";
 import type { LineaFactura } from "@/lib/types/facturacion/linea-factura";
 
 export async function getLineasFactura(factura_id: number) {
@@ -20,7 +19,7 @@ export async function getLineasFactura(factura_id: number) {
     throw new Error("Error al obtener las líneas de factura");
   }
 
-  const data: PaginatedResponse<LineaFactura> = await response.json();
+  const data: LineaFactura[] = await response.json();
   return data;
 }
 

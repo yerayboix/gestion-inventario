@@ -30,13 +30,10 @@ export function LibroComboboxSimple({
     limit: 50,
   });
 
-  const handleSelect = (libro: Libro) => {
-    onLibroSelect(libro);
-    setOpen(false);
-    setSearchTerm("");
-  };
-
-  const handleToggle = () => {
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!open && containerRef.current) {
       // Calcular si hay espacio suficiente abajo
       const rect = containerRef.current.getBoundingClientRect();
@@ -47,6 +44,27 @@ export function LibroComboboxSimple({
       setShowAbove(spaceBelow < dropdownHeight && spaceAbove > spaceBelow);
     }
     setOpen(!open);
+  };
+
+  const handleSelect = (libro: Libro, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    onLibroSelect(libro);
+    setOpen(false);
+    setSearchTerm("");
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSearchTerm(e.target.value);
+  };
+
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   // Cerrar dropdown cuando se hace clic fuera
@@ -70,6 +88,7 @@ export function LibroComboboxSimple({
   return (
     <div className="relative" ref={containerRef}>
       <Button
+        type="button"
         variant="outline"
         onClick={handleToggle}
         className="w-full justify-between"
@@ -97,7 +116,8 @@ export function LibroComboboxSimple({
             <Input
               placeholder="Buscar libro..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleInputChange}
+              onClick={handleInputClick}
               className="mb-2"
               autoFocus
             />
@@ -115,7 +135,7 @@ export function LibroComboboxSimple({
                 <div
                   key={libro.id}
                   className="p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
-                  onClick={() => handleSelect(libro)}
+                  onClick={(e) => handleSelect(libro, e)}
                 >
                   <div className="font-medium">{libro.titulo}</div>
                   <div className="text-sm text-gray-500">

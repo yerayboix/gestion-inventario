@@ -4,7 +4,7 @@ import type { Factura } from "@/lib/types/facturacion/factura";
 import { DeleteFacturaDialog } from "@/app/facturas/delete-factura-dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText } from "lucide-react";
+import { FileTextIcon } from "@/components/ui/file-text";
 import type { ColumnDef } from "@tanstack/react-table";
 
 const estadoVariants = {
@@ -63,7 +63,7 @@ export const columns: ColumnDef<Factura>[] = [
             asChild
           >
             <Link href={`/facturas/${factura.id}`}>
-              <FileText className="h-4 w-4" />
+              <FileTextIcon className="h-4 w-4" />
               <span className="sr-only">Ver factura</span>
             </Link>
           </Button>

@@ -4,7 +4,7 @@ import { getFacturas } from "@/lib/data/facturacion/facturas";
 import { SearchForm } from "@/app/facturas/search-form";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { PlusIcon } from "@/components/ui/plus";
 import Link from "next/link";
 
 interface FacturasPageProps {
@@ -27,7 +27,7 @@ export default async function FacturasPage({ searchParams }: FacturasPageProps) 
           <SearchForm defaultValue={searchQuery} />
           <Button asChild>
             <Link href="/facturas/nueva">
-              <Plus className="h-4 w-4 mr-2" />
+              <PlusIcon className="h-4 w-4 mr-2" />
               Nueva factura
             </Link>
           </Button>

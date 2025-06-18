@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -109,23 +110,67 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => updateQueryParams("page", (currentPage - 1).toString())}
-          disabled={currentPage <= 1}
-        >
-          Anterior
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => updateQueryParams("page", (currentPage + 1).toString())}
-          disabled={currentPage >= pageCount}
-        >
-          Siguiente
-        </Button>
+      <div className="flex items-center justify-between py-4">
+        <p className="text-sm text-muted-foreground">
+          Mostrando página {currentPage} de {pageCount} ({table.getRowModel().rows.length} elementos)
+        </p>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => updateQueryParams("page", "1")}
+            disabled={currentPage <= 1}
+          >
+            <ChevronsLeft className="h-4 w-4 mr-1" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => updateQueryParams("page", (currentPage - 1).toString())}
+            disabled={currentPage <= 1}
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+          </Button>
+          {Array.from({ length: Math.min(5, pageCount) }, (_, i) => {
+            let pageNum;
+            if (pageCount <= 5) {
+              pageNum = i + 1;
+            } else if (currentPage <= 3) {
+              pageNum = i + 1;
+            } else if (currentPage >= pageCount - 2) {
+              pageNum = pageCount - 4 + i;
+            } else {
+              pageNum = currentPage - 2 + i;
+            }
+            
+            return (
+              <Button
+                key={pageNum}
+                variant={currentPage === pageNum ? "default" : "outline"}
+                size="sm"
+                onClick={() => updateQueryParams("page", pageNum.toString())}
+              >
+                {pageNum}
+              </Button>
+            );
+          })}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => updateQueryParams("page", (currentPage + 1).toString())}
+            disabled={currentPage >= pageCount}
+          >
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => updateQueryParams("page", pageCount.toString())}
+            disabled={currentPage >= pageCount}
+          >
+            <ChevronsRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
       </div>
     </div>
   );

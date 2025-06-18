@@ -42,6 +42,7 @@ async function LibrosTable({ page, titulo }: { page: number; titulo: string }) {
       data={data.results}
       pageCount={Math.ceil(data.count / 10)}
       currentPage={page}
+      totalItems={data.count}
     />
   );
 }

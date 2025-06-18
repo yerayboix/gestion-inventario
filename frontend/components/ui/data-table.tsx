@@ -25,6 +25,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   pageCount: number;
   currentPage: number;
+  totalItems: number;
 }
 
 export function DataTable<TData, TValue>({
@@ -32,6 +33,7 @@ export function DataTable<TData, TValue>({
   data,
   pageCount,
   currentPage,
+  totalItems,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -112,7 +114,7 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="flex items-center justify-between py-4">
         <p className="text-sm text-muted-foreground">
-          Mostrando página {currentPage} de {pageCount} ({table.getRowModel().rows.length} elementos)
+          Mostrando página {currentPage} de {pageCount} ({totalItems} elementos)
         </p>
         <div className="flex items-center space-x-2">
           <Button

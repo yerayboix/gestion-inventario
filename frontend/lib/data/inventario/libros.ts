@@ -1,21 +1,7 @@
 "server-only"
 import { requireUser } from "../user/require-user";
-
-interface PaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
-
-interface Libro {
-  id: number;
-  titulo: string;
-  pvp: number;
-  precio: number;
-  descuento: number | null;
-  cantidad: number;
-}
+import type { PaginatedResponse } from "@/lib/types/common";
+import type { Libro } from "@/lib/types/inventario/libro";
 
 interface GetLibrosParams {
   page?: number;

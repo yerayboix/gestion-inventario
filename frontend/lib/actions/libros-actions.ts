@@ -2,17 +2,13 @@
 
 import { updateLibro, deleteLibro, createLibro } from "../data/inventario/libros";
 import { revalidatePath } from "next/cache";
+import type { Libro } from "@/lib/types/inventario/libro";
+import type { ActionResponse } from "@/lib/types/common";
 
 export async function updateLibroAction(
   id: number,
-  data: {
-    titulo: string;
-    pvp: number;
-    precio: number;
-    descuento: number | null;
-    cantidad: number;
-  }
-) {
+  data: Partial<Libro>
+): Promise<ActionResponse> {
   try {
     await updateLibro(id, data);
     revalidatePath("/libros");
@@ -22,7 +18,7 @@ export async function updateLibroAction(
   }
 }
 
-export async function deleteLibroAction(id: number) {
+export async function deleteLibroAction(id: number): Promise<ActionResponse> {
   try {
     await deleteLibro(id);
     revalidatePath("/libros");
@@ -32,13 +28,7 @@ export async function deleteLibroAction(id: number) {
   }
 }
 
-export async function createLibroAction(values: {
-  titulo: string;
-  pvp: number;
-  precio: number;
-  descuento: number | null;
-  cantidad: number;
-}) {
+export async function createLibroAction(values: Omit<Libro, 'id'>): Promise<ActionResponse> {
   try {
     await createLibro(values);
     revalidatePath("/libros");

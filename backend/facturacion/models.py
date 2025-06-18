@@ -1,5 +1,11 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+from django.contrib.auth import get_user_model
 from inventario.models import Libro
+from decimal import Decimal
+
+User = get_user_model()
 
 class Factura(models.Model):
     ESTADOS_FACTURA = [
@@ -8,25 +14,154 @@ class Factura(models.Model):
         ("pagada", "Pagada"),
         ("anulada", "Anulada"),
     ]
-    numero = models.CharField(max_length=30, blank=True, null=True)
-    fecha = models.DateField()
-    cliente = models.CharField(max_length=255, blank=True, null=True)
-    nombre = models.CharField(max_length=255, blank=True, null=True)
-    nif = models.CharField(max_length=20, blank=True, null=True)
-    domicilio = models.CharField(max_length=255, blank=True, null=True)
-    cp_ciudad = models.CharField(max_length=100, blank=True, null=True)
-    telefono = models.CharField(max_length=30, blank=True, null=True)
-    descuento = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    base_iva = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    iva = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    recargo_equivalencia = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    total = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    notas = models.TextField(blank=True, null=True)
-    estado = models.CharField(max_length=10, choices=ESTADOS_FACTURA, default="borrador")
-    fecha_pago = models.DateField(blank=True, null=True)
 
-    created_on = models.DateTimeField(auto_now_add=True)
-    updated_on = models.DateTimeField(auto_now=True)
+    # Números de factura
+    numero_borrador = models.CharField(
+        max_length=50, 
+        blank=True, 
+        null=True,
+        help_text="Número temporal para borradores"
+    )
+    numero = models.CharField(
+        max_length=30, 
+        blank=True, 
+        null=True, 
+        unique=True,
+        help_text="Número oficial de factura"
+    )
+
+    # Datos básicos
+    fecha = models.DateField(
+        help_text="Fecha de emisión de la factura"
+    )
+    cliente = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True,
+        help_text="Nombre del cliente"
+    )
+    nombre = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True,
+        help_text="Nombre comercial o de facturación"
+    )
+    nif = models.CharField(
+        max_length=20, 
+        blank=True, 
+        null=True,
+        help_text="NIF/CIF del cliente"
+    )
+    domicilio = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True,
+        help_text="Dirección de facturación"
+    )
+    cp_ciudad = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True,
+        help_text="Código postal y ciudad"
+    )
+    telefono = models.CharField(
+        max_length=30, 
+        blank=True, 
+        null=True,
+        help_text="Teléfono de contacto"
+    )
+
+    # Campos financieros
+    descuento = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        blank=True, 
+        null=True,
+        help_text="Descuento general aplicado a la factura (%)"
+    )
+    base_iva = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        blank=True, 
+        null=True,
+        help_text="Base imponible antes de IVA"
+    )
+    iva = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        blank=True, 
+        null=True,
+        default=21.00,
+        help_text="Porcentaje de IVA aplicado"
+    )
+    recargo_equivalencia = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        blank=True, 
+        null=True,
+        help_text="Porcentaje de recargo de equivalencia"
+    )
+    gastos_envio = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        blank=True, 
+        null=True,
+        help_text="Gastos de envío"
+    )
+    total = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        blank=True, 
+        null=True,
+        help_text="Importe total de la factura"
+    )
+
+    # Campos adicionales
+    notas = models.TextField(
+        blank=True, 
+        null=True,
+        help_text="Notas o comentarios adicionales"
+    )
+    estado = models.CharField(
+        max_length=10, 
+        choices=ESTADOS_FACTURA, 
+        default="borrador",
+        help_text="Estado actual de la factura"
+    )
+    fecha_pago = models.DateField(
+        blank=True, 
+        null=True,
+        help_text="Fecha en que se realizó el pago"
+    )
+
+    # Campos de anulación
+    motivo_anulacion = models.TextField(
+        blank=True, 
+        null=True,
+        help_text="Motivo por el que se anuló la factura"
+    )
+    fecha_anulacion = models.DateTimeField(
+        blank=True, 
+        null=True,
+        help_text="Fecha y hora en que se anuló la factura"
+    )
+
+    # Campos de auditoría
+    created_on = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Fecha y hora de creación"
+    )
+    updated_on = models.DateTimeField(
+        auto_now=True,
+        help_text="Fecha y hora de última modificación"
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name='facturas_creadas',
+        null=True,
+        help_text="Usuario que creó la factura"
+    )
 
     class Meta:
         verbose_name = "Factura"
@@ -34,16 +169,193 @@ class Factura(models.Model):
         ordering = ["-fecha", "-numero"]
 
     def __str__(self):
-        return f"Factura {self.numero or self.id} - {self.estado.title()}"
+        if self.numero:
+            return f"Factura {self.numero} - {self.get_estado_display()}"
+        return f"Factura {self.numero_borrador or self.id} - {self.get_estado_display()}"
+
+    def generar_numero_factura(self):
+        """
+        Genera el siguiente número de factura disponible para el año actual
+        """
+        from django.db.models import Max
+        año_actual = timezone.now().year
+        
+        # Buscar la última factura del año actual
+        ultima_factura = Factura.objects.filter(
+            numero__startswith=f'F-{año_actual}-',
+            estado__in=['emitida', 'pagada', 'anulada']
+        ).aggregate(
+            Max('numero')
+        )['numero__max']
+        
+        if ultima_factura:
+            ultimo_numero = int(ultima_factura.split('-')[-1])
+            siguiente_numero = ultimo_numero + 1
+        else:
+            siguiente_numero = 1
+            
+        return f'F-{año_actual}-{siguiente_numero:04d}'
+
+    def generar_numero_borrador(self):
+        """
+        Genera un número temporal para el borrador
+        """
+        timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+        return f'BORRADOR-{timestamp}-{self.id}'
+
+    def calcular_totales(self):
+        """
+        Calcula los totales de la factura basándose en sus líneas
+        """
+        # Calcular base imponible
+        base = sum(linea.importe or Decimal('0.00') for linea in self.lineas.all())
+        
+        # Aplicar descuento general si existe
+        if self.descuento:
+            base = base * (1 - (self.descuento / Decimal('100.00')))
+        
+        self.base_iva = base
+        
+        # Calcular IVA
+        importe_iva = Decimal('0.00')
+        if self.iva:
+            importe_iva = base * (self.iva / Decimal('100.00'))
+        
+        # Calcular recargo de equivalencia si aplica
+        importe_recargo = Decimal('0.00')
+        if self.recargo_equivalencia:
+            importe_recargo = base * (self.recargo_equivalencia / Decimal('100.00'))
+        
+        # Calcular total
+        self.total = base + importe_iva + importe_recargo
+
+    def clean(self):
+        """
+        Validaciones adicionales del modelo
+        """
+        if self.estado == 'emitida' and not self.cliente:
+            raise ValidationError('Una factura emitida debe tener un cliente')
+        
+        if self.estado == 'pagada' and not self.fecha_pago:
+            raise ValidationError('Una factura pagada debe tener fecha de pago')
+
+    def save(self, *args, **kwargs):
+        # Si es una nueva factura
+        if not self.pk:
+            super().save(*args, **kwargs)
+            if self.estado == 'borrador':
+                self.numero_borrador = self.generar_numero_borrador()
+        
+        # Si estamos cambiando de borrador a emitida
+        if self.estado == 'emitida' and not self.numero:
+            self.numero = self.generar_numero_factura()
+            self.numero_borrador = None
+        
+        # Calcular totales
+        self.calcular_totales()
+        
+        super().save(*args, **kwargs)
+
+    def anular(self, motivo):
+        """
+        Anula una factura emitida
+        """
+        if self.estado == 'borrador':
+            raise ValidationError("No se puede anular un borrador")
+            
+        if self.estado == 'anulada':
+            raise ValidationError("La factura ya está anulada")
+        
+        self.estado = 'anulada'
+        self.motivo_anulacion = motivo
+        self.fecha_anulacion = timezone.now()
+        self.save()
+
+    def delete(self, *args, **kwargs):
+        """
+        Previene la eliminación de facturas que no sean borradores
+        """
+        if self.estado != 'borrador':
+            raise ValidationError(
+                "No se pueden eliminar facturas emitidas. Use anulación en su lugar."
+            )
+        super().delete(*args, **kwargs)
 
 
 class LineaFactura(models.Model):
-    factura = models.ForeignKey(Factura, on_delete=models.CASCADE)
-    libro = models.ForeignKey(Libro, on_delete=models.CASCADE)
-    cantidad = models.IntegerField()
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    descuento = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    importe = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    factura = models.ForeignKey(
+        Factura, 
+        on_delete=models.CASCADE,
+        related_name='lineas',
+        help_text="Factura a la que pertenece esta línea"
+    )
+    libro = models.ForeignKey(
+        Libro, 
+        on_delete=models.PROTECT,
+        help_text="Libro vendido"
+    )
+    cantidad = models.IntegerField(
+        help_text="Cantidad de libros"
+    )
+    precio = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        help_text="Precio unitario"
+    )
+    descuento = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        blank=True, 
+        null=True,
+        help_text="Descuento aplicado a esta línea (%)"
+    )
+    importe = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        blank=True, 
+        null=True,
+        help_text="Importe total de la línea"
+    )
 
+    # Campos de auditoría
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
+
+    def clean(self):
+        """
+        Validaciones adicionales del modelo
+        """
+        if self.cantidad <= 0:
+            raise ValidationError('La cantidad debe ser mayor que 0')
+        
+        if self.precio < 0:
+            raise ValidationError('El precio no puede ser negativo')
+
+    def calcular_importe(self):
+        """
+        Calcula el importe total de la línea
+        """
+        importe = self.cantidad * self.precio
+        
+        if self.descuento:
+            importe = importe * (1 - (self.descuento / Decimal('100.00')))
+            
+        return importe.quantize(Decimal('0.01'))
+
+    def save(self, *args, **kwargs):
+        # Calcular importe
+        self.importe = self.calcular_importe()
+        
+        super().save(*args, **kwargs)
+        
+        # Recalcular totales de la factura
+        self.factura.calcular_totales()
+        self.factura.save()
+
+    class Meta:
+        verbose_name = "Línea de Factura"
+        verbose_name_plural = "Líneas de Factura"
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.cantidad}x {self.libro.titulo} - {self.importe}€"

@@ -18,13 +18,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BookOpen, Percent, Package, Pencil, Save, Edit, Euro } from "lucide-react";
-import { useState, useEffect } from "react";
+import { BookOpen, Percent, Package, Save, Edit, Euro } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
 import { updateLibroAction } from "../../lib/actions/libros-actions";
 import React from "react";
+import { SquarePenIcon, type SquarePenIconHandle } from "@/components/ui/square-pen";
 
 const formSchema = z.object({
   titulo: z.string().min(1, "El título es requerido"),
@@ -51,6 +52,7 @@ interface EditLibroDialogProps {
 export function EditLibroDialog({ libro, onSuccess }: EditLibroDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const editIconRef = useRef<SquarePenIconHandle>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -98,8 +100,14 @@ export function EditLibroDialog({ libro, onSuccess }: EditLibroDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-          <Pencil className="h-4 w-4" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="hover:bg-primary/10"
+          onMouseEnter={() => editIconRef.current?.startAnimation()}
+          onMouseLeave={() => editIconRef.current?.stopAnimation()}
+        >
+          <SquarePenIcon ref={editIconRef} className="text-primary" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

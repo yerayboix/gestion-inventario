@@ -12,10 +12,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteLibroAction } from "../../lib/actions/libros-actions";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { DeleteIcon, DeleteIconHandle } from "@/components/ui/delete";
 
 interface DeleteLibroDialogProps {
   libroId: number;
@@ -26,6 +26,7 @@ interface DeleteLibroDialogProps {
 export function DeleteLibroDialog({ libroId, libroTitulo, onSuccess }: DeleteLibroDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const deleteIconRef = useRef<DeleteIconHandle>(null);
 
   async function handleDelete() {
     try {
@@ -49,8 +50,14 @@ export function DeleteLibroDialog({ libroId, libroTitulo, onSuccess }: DeleteLib
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="hover:bg-red-50">
-          <Trash2 className="h-4 w-4 text-red-500" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="hover:bg-red-50"
+          onMouseEnter={() => deleteIconRef.current?.startAnimation()}
+          onMouseLeave={() => deleteIconRef.current?.stopAnimation()}
+        >
+          <DeleteIcon ref={deleteIconRef} className="text-red-500" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import type { Factura } from "@/lib/types/facturacion/factura";
-import { DeleteFacturaDialog } from "@/app/facturas/delete-factura-dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileTextIcon } from "@/components/ui/file-text";
@@ -67,7 +66,7 @@ export const columns: ColumnDef<Factura>[] = [
               <span className="sr-only">Ver factura</span>
             </Link>
           </Button>
-          <DeleteFacturaDialog factura={factura} />
+          
         </div>
       );
     },

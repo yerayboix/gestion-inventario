@@ -1,68 +1,46 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { createFactura, updateFactura, emitirFactura, anularFactura } from "../data/facturacion/facturas";
 import { Factura, CreateFacturaData } from "../types/facturacion/factura";
+import type { ActionResponse } from "@/lib/types/common";
 
-export async function createFactura(data: CreateFacturaData) {
-  const response = await fetch(`${process.env.API_URL}/api/v1/facturas/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    throw new Error("Error al crear la factura");
+export async function createFacturaAction(data: CreateFacturaData): Promise<ActionResponse> {
+  try {
+    await createFactura(data);
+    revalidatePath("/facturas");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Error al crear la factura" };
   }
-
-  revalidatePath("/facturas");
-  return response.json();
 }
 
-export async function updateFactura(id: string, data: Partial<Factura>) {
-  const response = await fetch(`${process.env.API_URL}/api/v1/facturas/${id}/`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    throw new Error("Error al actualizar la factura");
+export async function updateFacturaAction(id: string, data: Partial<Factura>): Promise<ActionResponse> {
+  try {
+    await updateFactura(id, data);
+    revalidatePath(`/facturas/${id}`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Error al actualizar la factura" };
   }
-
-  revalidatePath(`/facturas/${id}`);
-  return response.json();
 }
 
-export async function emitirFactura(id: string) {
-  const response = await fetch(`${process.env.API_URL}/api/v1/facturas/${id}/emitir/`, {
-    method: "POST",
-  });
-
-  if (!response.ok) {
-    throw new Error("Error al emitir la factura");
+export async function emitirFacturaAction(id: string): Promise<ActionResponse> {
+  try {
+    await emitirFactura(id);
+    revalidatePath(`/facturas/${id}`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Error al emitir la factura" };
   }
-
-  revalidatePath(`/facturas/${id}`);
-  return response.json();
 }
 
-export async function anularFactura(id: string, motivo: string) {
-  const response = await fetch(`${process.env.API_URL}/api/v1/facturas/${id}/anular/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ motivo }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Error al anular la factura");
+export async function anularFacturaAction(id: string, motivo: string): Promise<ActionResponse> {
+  try {
+    await anularFactura(id, motivo);
+    revalidatePath(`/facturas/${id}`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Error al anular la factura" };
   }
-
-  revalidatePath(`/facturas/${id}`);
-  return response.json();
 }

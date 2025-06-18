@@ -22,8 +22,20 @@ const estadoLabels = {
 
 export const columns: ColumnDef<Factura>[] = [
   {
-    accessorKey: "numero",
+    id: "numero",
     header: "Número",
+    cell: ({ row }) => {
+      const factura = row.original;
+      const numero = factura.estado === "borrador" 
+        ? factura.numero_borrador 
+        : factura.numero;
+      
+      return (
+        <span className="font-medium">
+          {numero || "Sin número"}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "fecha",

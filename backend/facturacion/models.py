@@ -201,7 +201,11 @@ class Factura(models.Model):
         Genera un número temporal para el borrador
         """
         timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
-        return f'BORRADOR-{timestamp}-{self.id}'
+        # Usar el ID si está disponible, sino usar un timestamp único
+        if self.pk:
+            return f'BORRADOR-{timestamp}-{self.pk}'
+        else:
+            return f'BORRADOR-{timestamp}'
 
     def calcular_totales(self):
         """
@@ -219,12 +223,12 @@ class Factura(models.Model):
         # Calcular IVA
         importe_iva = Decimal('0.00')
         if self.iva:
-            importe_iva = base * (self.iva / Decimal('100.00'))
+            importe_iva = base * (Decimal(self.iva) / Decimal('100.00'))
         
         # Calcular recargo de equivalencia si aplica
         importe_recargo = Decimal('0.00')
         if self.recargo_equivalencia:
-            importe_recargo = base * (self.recargo_equivalencia / Decimal('100.00'))
+            importe_recargo = base * (Decimal(self.recargo_equivalencia) / Decimal('100.00'))
         
         # Calcular total
         self.total = base + importe_iva + importe_recargo
@@ -240,21 +244,35 @@ class Factura(models.Model):
             raise ValidationError('Una factura pagada debe tener fecha de pago')
 
     def save(self, *args, **kwargs):
-        # Si es una nueva factura
-        if not self.pk:
-            super().save(*args, **kwargs)
-            if self.estado == 'borrador':
-                self.numero_borrador = self.generar_numero_borrador()
+        is_new = not self.pk
+        
+        # Si es una nueva factura y es borrador, generar número de borrador
+        if is_new and self.estado == 'borrador':
+            self.numero_borrador = self.generar_numero_borrador()
         
         # Si estamos cambiando de borrador a emitida
-        if self.estado == 'emitida' and not self.numero:
+        if not is_new and self.estado == 'emitida' and not self.numero:
             self.numero = self.generar_numero_factura()
             self.numero_borrador = None
         
-        # Calcular totales
-        self.calcular_totales()
-        
+        # Guardar la factura primero
         super().save(*args, **kwargs)
+        
+        # Calcular totales solo si la factura ya tiene ID (no es nueva)
+        if not is_new:
+            self.calcular_totales()
+            # Guardar solo los campos calculados sin llamar a save() completo
+            Factura.objects.filter(pk=self.pk).update(
+                base_iva=self.base_iva,
+                total=self.total
+            )
+        
+        # Si es nueva y es borrador, actualizar el número de borrador con el ID real
+        if is_new and self.estado == 'borrador':
+            timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+            self.numero_borrador = f'BORRADOR-{timestamp}-{self.pk}'
+            # Guardar solo el numero_borrador sin llamar a save() completo
+            Factura.objects.filter(pk=self.pk).update(numero_borrador=self.numero_borrador)
 
     def anular(self, motivo):
         """
@@ -348,9 +366,12 @@ class LineaFactura(models.Model):
         
         super().save(*args, **kwargs)
         
-        # Recalcular totales de la factura
+        # Recalcular totales de la factura usando update para evitar recursión
         self.factura.calcular_totales()
-        self.factura.save()
+        Factura.objects.filter(pk=self.factura.pk).update(
+            base_iva=self.factura.base_iva,
+            total=self.factura.total
+        )
 
     class Meta:
         verbose_name = "Línea de Factura"

@@ -1,7 +1,7 @@
-
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFactura } from "@/lib/data/facturacion/facturas";
+import { getLineasFactura } from "@/lib/data/facturacion/lineas-factura";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -14,7 +14,9 @@ interface FacturaPageProps {
 export default async function FacturaPage({ params }: FacturaPageProps) {
   const { id } = await params;
   const factura = await getFactura(id);
+  const lineas = await getLineasFactura(id);
 
+  
   if (!factura) {
     notFound();
   }
@@ -53,7 +55,13 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
 
       <Card className="p-6">
         <h2 className="text-lg font-semibold mb-4">Líneas de Factura</h2>
-        {/* ... tabla de líneas ... */}
+        {lineas?.results?.map((linea) => (
+          <div key={linea.id}>
+            <p>{linea.libro.titulo}</p>
+            <p>{linea.cantidad}</p>
+            <p>{linea.precio}</p>
+          </div>
+        ))}
       </Card>
     </div>
   );

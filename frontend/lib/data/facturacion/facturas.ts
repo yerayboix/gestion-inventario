@@ -1,17 +1,18 @@
 "server-only"
 import { requireUser } from "../user/require-user";
 import type { PaginatedResponse } from "@/lib/types/common";
-import type { Factura, GetFacturasParams } from "@/lib/types/facturacion/factura";
+import type { Factura, CreateFacturaData } from "@/lib/types/facturacion/factura";
 
-export async function getFacturas({ 
-  page = 1, 
-  pageSize = 10, 
-  numero,
-  cliente,
-  estado,
-  fecha_desde,
-  fecha_hasta,
-}: GetFacturasParams = {}) {
+interface GetFacturasParams {
+  page?: number;
+  pageSize?: number;
+  estado?: string;
+  cliente?: string;
+  numero?: string;
+}
+
+export async function getFacturas({ page = 1, pageSize = 10, estado, cliente, numero }: GetFacturasParams = {}) {
+  // Ensure user is authenticated
   await requireUser();
   
   const searchParams = new URLSearchParams({
@@ -19,11 +20,17 @@ export async function getFacturas({
     page_size: pageSize.toString(),
   });
 
-  if (numero) searchParams.append('numero', numero);
-  if (cliente) searchParams.append('cliente', cliente);
-  if (estado) searchParams.append('estado', estado);
-  if (fecha_desde) searchParams.append('fecha_desde', fecha_desde);
-  if (fecha_hasta) searchParams.append('fecha_hasta', fecha_hasta);
+  if (estado) {
+    searchParams.append('estado', estado);
+  }
+
+  if (cliente) {
+    searchParams.append('cliente', cliente);
+  }
+
+  if (numero) {
+    searchParams.append('numero', numero);
+  }
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/?${searchParams.toString()}`,
@@ -43,7 +50,28 @@ export async function getFacturas({
   return data;
 }
 
-export async function createFactura(factura: Omit<Factura, 'id'>) {
+export async function getFactura(id: string) {
+  await requireUser();
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/${id}/`,
+    {
+      headers: {
+        "X-API-Key": process.env.API_KEY || "",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Error al obtener la factura");
+  }
+
+  const data: Factura = await response.json();
+  return data;
+}
+
+export async function createFactura(factura: CreateFacturaData) {
   await requireUser();
 
   const response = await fetch(
@@ -66,13 +94,13 @@ export async function createFactura(factura: Omit<Factura, 'id'>) {
   return data;
 }
 
-export async function updateFactura(id: number, factura: Partial<Omit<Factura, 'id'>>) {
+export async function updateFactura(id: string, factura: Partial<Factura>) {
   await requireUser();
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/${id}/`,
     {
-      method: 'PATCH',
+      method: 'PUT',
       headers: {
         "X-API-Key": process.env.API_KEY || "",
         "Content-Type": "application/json",
@@ -89,13 +117,13 @@ export async function updateFactura(id: number, factura: Partial<Omit<Factura, '
   return data;
 }
 
-export async function deleteFactura(id: number) {
+export async function emitirFactura(id: string) {
   await requireUser();
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/${id}/`,
+    `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/${id}/emitir/`,
     {
-      method: 'DELETE',
+      method: 'POST',
       headers: {
         "X-API-Key": process.env.API_KEY || "",
         "Content-Type": "application/json",
@@ -104,25 +132,30 @@ export async function deleteFactura(id: number) {
   );
 
   if (!response.ok) {
-    throw new Error("Error al eliminar la factura");
+    throw new Error("Error al emitir la factura");
   }
+
+  const data: Factura = await response.json();
+  return data;
 }
 
-export async function getFactura(id: number) {
+export async function anularFactura(id: string, motivo: string) {
   await requireUser();
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/${id}/`,
+    `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/${id}/anular/`,
     {
+      method: 'POST',
       headers: {
         "X-API-Key": process.env.API_KEY || "",
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({ motivo }),
     }
   );
 
   if (!response.ok) {
-    throw new Error("Error al obtener la factura");
+    throw new Error("Error al anular la factura");
   }
 
   const data: Factura = await response.json();

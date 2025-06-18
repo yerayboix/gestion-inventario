@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { LineaFacturaForm } from "@/app/facturas/linea-factura-form";
 import { LineaFactura } from "@/lib/types/facturacion/linea-factura";
 import { CreateFacturaData } from "@/lib/types/facturacion/factura";
-import { createFactura } from "@/lib/actions/facturas-actions";
+import { createFacturaAction } from "@/lib/actions/facturas-actions";
 
 const facturaSchema = z.object({
   cliente: z.string().min(1, "El cliente es requerido"),
@@ -65,9 +65,14 @@ export function FacturaForm({ factura }: FacturaFormProps) {
         lineas: lineas,
       };
 
-      const result = await createFactura(facturaData);
-      toast.success("Factura creada correctamente");
-      router.push(`/facturas/${result.id}`);
+      const result = await createFacturaAction(facturaData);
+      
+      if (result.success) {
+        toast.success("Factura creada correctamente");
+        router.push("/facturas");
+      } else {
+        toast.error(result.error || "Error al crear la factura");
+      }
     } catch (error) {
       toast.error("Error al crear la factura");
       console.error(error);

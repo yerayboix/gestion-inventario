@@ -15,7 +15,7 @@ class FacturaViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def lineas(self, request, pk=None):
         factura = self.get_object()
-        lineas = factura.lineafactura_set.all()
+        lineas = LineaFactura.objects.filter(factura=factura)
         serializer = LineaFacturaSerializer(lineas, many=True)
         return Response(serializer.data)
 

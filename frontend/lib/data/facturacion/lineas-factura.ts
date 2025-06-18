@@ -1,26 +1,13 @@
 "server-only"
 import { requireUser } from "../user/require-user";
 import type { PaginatedResponse } from "@/lib/types/common";
-import type { LineaFactura, GetLineasFacturaParams } from "@/lib/types/facturacion/linea-factura";
+import type { LineaFactura } from "@/lib/types/facturacion/linea-factura";
 
-export async function getLineasFactura({ 
-  page = 1, 
-  pageSize = 10,
-  factura_id,
-  libro_id,
-}: GetLineasFacturaParams = {}) {
+export async function getLineasFactura(factura_id: number) {
   await requireUser();
   
-  const searchParams = new URLSearchParams({
-    page: page.toString(),
-    page_size: pageSize.toString(),
-  });
-
-  if (factura_id) searchParams.append('factura', factura_id.toString());
-  if (libro_id) searchParams.append('libro', libro_id.toString());
-
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/facturacion/lineas-factura/?${searchParams.toString()}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/${factura_id}/lineas/`,
     {
       headers: {
         "X-API-Key": process.env.API_KEY || "",

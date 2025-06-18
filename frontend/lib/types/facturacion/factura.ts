@@ -5,6 +5,7 @@ export type EstadoFactura = "borrador" | "emitida" | "pagada" | "anulada";
 export interface Factura {
   id: number;
   numero: string | null;
+  numero_borrador: string | null;
   fecha: string;
   cliente: string | null;
   nombre: string | null;

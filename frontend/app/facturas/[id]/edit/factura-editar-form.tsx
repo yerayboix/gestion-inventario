@@ -68,6 +68,7 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
         precio: Number(linea.precio),
         descuento: linea.descuento ? Number(linea.descuento) : 0,
         importe: Number(linea.importe),
+        stock: linea.libro.cantidad,
       }));
       setLineas(lineasFormateadas);
     }
@@ -171,7 +172,6 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
     } catch (error) {
       toast.error("Error al actualizar la factura");
       console.error(error);
-    } finally {
       setIsSubmitting(false);
     }
   };

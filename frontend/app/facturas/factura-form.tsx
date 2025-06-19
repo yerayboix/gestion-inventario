@@ -15,6 +15,7 @@ import { LineaFacturaForm } from "@/app/facturas/linea-factura-form";
 import { CreateFacturaData } from "@/lib/types/facturacion/factura";
 import { CreateLineaFacturaData } from "@/lib/types/facturacion/linea-factura";
 import { createFacturaAction } from "@/lib/actions/facturas-actions";
+import { Separator } from "@/components/ui/separator";
 
 const facturaSchema = z.object({
   cliente: z.string().optional(),
@@ -97,13 +98,11 @@ export function FacturaForm({ factura }: FacturaFormProps) {
     setLineas(newLineas);
   };
 
-  const totalFactura = lineas.reduce((sum, linea) => sum + (linea.importe || 0), 0);
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Datos del cliente */}
-        <Card>
+        <Card className="border-none shadow-none">
           <CardHeader>
             <CardTitle>Datos del Cliente</CardTitle>
           </CardHeader>
@@ -215,9 +214,9 @@ export function FacturaForm({ factura }: FacturaFormProps) {
             </div>
           </CardContent>
         </Card>
-
+        <Separator />
         {/* Líneas de factura */}
-        <Card>
+        <Card className="border-none shadow-none">
           <CardHeader>
             <CardTitle>Líneas de Factura</CardTitle>
           </CardHeader>
@@ -229,43 +228,26 @@ export function FacturaForm({ factura }: FacturaFormProps) {
               onUpdateLinea={handleUpdateLinea}
             />
           </CardContent>
+          {/* Botones de acción */}
+          <div className="flex justify-end gap-2 px-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              disabled={isSubmitting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting || lineas.length === 0}
+            >
+              {isSubmitting ? "Guardando..." : "Guardar Factura"}
+            </Button>
+          </div>
         </Card>
 
-        {/* Totales */}
-        {lineas.length > 0 && (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex justify-end">
-                <div className="text-right space-y-2">
-                  <p className="text-sm text-gray-600">
-                    Total líneas: {lineas.length}
-                  </p>
-                  <p className="text-2xl font-bold">
-                    Total: {totalFactura.toFixed(2)}€
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
-        {/* Botones de acción */}
-        <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.back()}
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting || lineas.length === 0}
-          >
-            {isSubmitting ? "Guardando..." : "Guardar Factura"}
-          </Button>
-        </div>
       </form>
     </Form>
   );

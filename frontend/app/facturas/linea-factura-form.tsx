@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -26,7 +26,30 @@ export function LineaFacturaForm({
 }: LineaFacturaFormProps) {
   const [selectedLibro, setSelectedLibro] = useState<Libro | null>(null);
   const [cantidad, setCantidad] = useState(1);
+  const [descuentoGeneral, setDescuentoGeneral] = useState(0);
+  const [ivaPorcentaje, setIvaPorcentaje] = useState(21); // IVA por defecto 21%
+  const [gastosEnvio, setGastosEnvio] = useState(0);
+  const [recargoEquivalencia, setRecargoEquivalencia] = useState(0);
   const deleteIconRef = useRef<DeleteIconHandle | null>(null);
+
+  // Calcular totales
+  const sumaYSigue = lineas.reduce((sum, linea) => sum + (linea.importe || 0), 0);
+  const importeDescuento = sumaYSigue * (descuentoGeneral / 100);
+  const baseIva = sumaYSigue - importeDescuento;
+  const importeIva = baseIva * (ivaPorcentaje / 100);
+  const subtotal = baseIva + importeIva;
+  const importeRecargoEquivalencia = subtotal * (recargoEquivalencia / 100);
+  const total = subtotal + gastosEnvio + importeRecargoEquivalencia;
+
+  // Recalcular PVP de todas las líneas cuando cambie el IVA
+  useEffect(() => {
+    if (lineas.length > 0) {
+      lineas.forEach((linea, index) => {
+        const nuevoPvp = Math.round((linea.precio * (1 + (ivaPorcentaje / 100))) * 100) / 100;
+        onUpdateLinea(index, { pvp: nuevoPvp });
+      });
+    }
+  }, [ivaPorcentaje, lineas.length]);
 
   const handleAddLinea = () => {
     if (!selectedLibro) return;
@@ -37,11 +60,15 @@ export function LineaFacturaForm({
       return;
     }
 
+    // Calcular PVP como precio + IVA
+    const pvpCalculado = Math.round((selectedLibro.precio * (1 + (ivaPorcentaje / 100))) * 100) / 100;
+
     const nuevaLinea: CreateLineaFacturaData = {
       libro: selectedLibro.id, // Solo el ID del libro
       titulo: selectedLibro.titulo,
       cantidad,
       precio: selectedLibro.precio,
+      pvp: pvpCalculado, // PVP calculado como precio + IVA
       descuento: null,
       importe: selectedLibro.precio * cantidad,
       stock: selectedLibro.cantidad, // Añadir el stock para validaciones futuras
@@ -172,6 +199,7 @@ export function LineaFacturaForm({
             <TableRow>
               <TableHead>Título</TableHead>
               <TableHead>Cantidad</TableHead>
+              <TableHead>PVP</TableHead>
               <TableHead>Precio</TableHead>
               <TableHead>Importe</TableHead>
               <TableHead></TableHead>
@@ -195,6 +223,9 @@ export function LineaFacturaForm({
                   <p className="text-xs text-muted-foreground mt-1">
                     Stock: {linea.stock || 0} unidades
                   </p>
+                </TableCell>
+                <TableCell>
+                  {linea.pvp}€
                 </TableCell>
                 <TableCell>
                   <div className="relative">
@@ -231,13 +262,135 @@ export function LineaFacturaForm({
       {/* Totales */}
       {lineas.length > 0 && (
         <div className="flex justify-end">
-          <div className="text-right">
-            <p className="text-sm">
-              <strong>Total líneas:</strong> {lineas.length}
-            </p>
-            <p className="text-lg font-semibold">
-              <strong>Total factura:</strong> {lineas.reduce((sum, linea) => sum + (linea.importe || 0), 0).toFixed(2)}€
-            </p>
+          <div className="w-96 space-y-6 p-6 bg-muted/30 rounded-lg border">
+            {/* Resumen de líneas */}
+            <div className="text-center pb-4 border-b">
+              <p className="text-sm text-muted-foreground">
+                {lineas.length} {lineas.length === 1 ? 'línea' : 'líneas'}
+              </p>
+              <p className="text-2xl font-bold">
+                {sumaYSigue.toFixed(2)}€
+              </p>
+              <p className="text-sm text-muted-foreground">Suma y sigue</p>
+            </div>
+
+            {/* Descuentos */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Descuento general:</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={descuentoGeneral}
+                    onChange={(e) => setDescuentoGeneral(parseFloat(e.target.value) || 0)}
+                    className="w-20 text-right"
+                  />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+              
+              {descuentoGeneral > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Descuento aplicado:</span>
+                  <span className="font-medium text-red-600">-{importeDescuento.toFixed(2)}€</span>
+                </div>
+              )}
+            </div>
+
+            {/* Base imponible */}
+            <div className="border-t pt-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Base imponible:</span>
+                <span className="font-semibold">{baseIva.toFixed(2)}€</span>
+              </div>
+            </div>
+
+            {/* IVA */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">IVA:</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={ivaPorcentaje}
+                    onChange={(e) => setIvaPorcentaje(parseFloat(e.target.value) || 0)}
+                    className="w-20 text-right"
+                  />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+              
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Importe IVA:</span>
+                <span className="font-medium">{importeIva.toFixed(2)}€</span>
+              </div>
+            </div>
+
+            {/* Subtotal */}
+            <div className="border-t pt-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Subtotal:</span>
+                <span className="font-semibold">{subtotal.toFixed(2)}€</span>
+              </div>
+            </div>
+
+            {/* Gastos de envío */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Gastos de envío:</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={gastosEnvio}
+                    onChange={(e) => setGastosEnvio(parseFloat(e.target.value) || 0)}
+                    className="w-24 text-right"
+                  />
+                  <span className="text-sm text-muted-foreground">€</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Recargo de equivalencia */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Rec. Equivalencia:</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={recargoEquivalencia}
+                    onChange={(e) => setRecargoEquivalencia(parseFloat(e.target.value) || 0)}
+                    className="w-20 text-right"
+                  />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+              
+              {recargoEquivalencia > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Importe recargo:</span>
+                  <span className="font-medium">{importeRecargoEquivalencia.toFixed(2)}€</span>
+                </div>
+              )}
+            </div>
+
+            {/* Total final */}
+            <div className="border-t-2 border-primary pt-4">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-bold">TOTAL:</span>
+                <span className="text-2xl font-bold text-primary">{total.toFixed(2)}€</span>
+              </div>
+            </div>
           </div>
         </div>
       )}

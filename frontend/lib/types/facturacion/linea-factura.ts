@@ -3,7 +3,7 @@ import type { Libro } from "../inventario/libro";
 export interface LineaFactura {
   id: number;
   factura: number;
-  libro: Pick<Libro, 'id' | 'titulo' | 'precio' | 'descuento'>;
+  libro: Pick<Libro, 'id' | 'titulo' | 'precio' | 'descuento' | 'pvp'>;
   cantidad: number;
   precio: number;
   descuento: number | null;
@@ -15,6 +15,7 @@ export interface CreateLineaFacturaData {
   titulo: string;
   cantidad: number;
   precio: number;
+  pvp: number; // PVP del libro para mostrar en la tabla
   descuento?: number | null;
   importe?: number | null;
   stock?: number; // Stock disponible para validaciones

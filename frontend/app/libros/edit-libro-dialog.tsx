@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BookOpen, Percent, Package, Save, Edit, Euro } from "lucide-react";
+import { BookOpen, Package, Save, Edit, Euro } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -29,9 +29,7 @@ import { SquarePenIcon, type SquarePenIconHandle } from "@/components/ui/square-
 
 const formSchema = z.object({
   titulo: z.string().min(1, "El título es requerido"),
-  pvp: z.coerce.number().min(0, "El PVP debe ser mayor o igual a 0"),
   precio: z.coerce.number().min(0, "El precio debe ser mayor o igual a 0"),
-  descuento: z.coerce.number().min(0).max(100).nullable(),
   cantidad: z.coerce.number().int().min(0, "La cantidad debe ser mayor o igual a 0"),
 });
 
@@ -58,9 +56,7 @@ export function EditLibroDialog({ libro, onSuccess }: EditLibroDialogProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       titulo: libro.titulo,
-      pvp: libro.pvp,
       precio: libro.precio,
-      descuento: libro.descuento,
       cantidad: libro.cantidad,
     },
   });
@@ -70,9 +66,7 @@ export function EditLibroDialog({ libro, onSuccess }: EditLibroDialogProps) {
     if (open) {
       form.reset({
         titulo: libro.titulo,
-        pvp: libro.pvp,
         precio: libro.precio,
-        descuento: libro.descuento,
         cantidad: libro.cantidad,
       });
     }
@@ -81,7 +75,11 @@ export function EditLibroDialog({ libro, onSuccess }: EditLibroDialogProps) {
   async function onSubmit(values: FormValues) {
     try {
       setIsLoading(true);
-      const result = await updateLibroAction(libro.id, values);
+      const result = await updateLibroAction(libro.id, {
+        ...values,
+        pvp: values.precio, // Usar el precio como PVP
+        descuento: null, // Sin descuento
+      });
       
       if (result.success) {
         toast.success("Libro actualizado correctamente");
@@ -138,22 +136,6 @@ export function EditLibroDialog({ libro, onSuccess }: EditLibroDialogProps) {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="pvp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>PVP</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Euro className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input type="number" step="0.01" {...field} className="pl-9" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="precio"
                 render={({ field }) => (
                   <FormItem>
@@ -162,24 +144,6 @@ export function EditLibroDialog({ libro, onSuccess }: EditLibroDialogProps) {
                       <div className="relative">
                         <Euro className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input type="number" step="0.01" {...field} className="pl-9" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="descuento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descuento</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Percent className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input type="number" step="1" {...field} value={field.value ?? ""} className="pl-9" />
                       </div>
                     </FormControl>
                     <FormMessage />

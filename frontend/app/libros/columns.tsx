@@ -25,14 +25,6 @@ export const columns: ColumnDef<Libro>[] = [
     cell: ({ row }) => formatCurrency(row.getValue("precio")),
   },
   {
-    accessorKey: "descuento",
-    header: "Descuento",
-    cell: ({ row }) => {
-      const descuento = row.getValue("descuento");
-      return descuento ? `${descuento}%` : "-";
-    },
-  },
-  {
     accessorKey: "cantidad",
     header: "Cantidad",
   },
@@ -42,8 +34,9 @@ export const columns: ColumnDef<Libro>[] = [
       const libro = row.original;
       return (
         <div className="flex items-center gap-2">
-          <EditLibroDialog libro={libro} onSuccess={() => {}} />
+          <EditLibroDialog key={`edit-libro-${libro.id}`} libro={libro} onSuccess={() => {}} />
           <DeleteLibroDialog
+            key={`delete-libro-${libro.id}`}
             libroId={libro.id}
             libroTitulo={libro.titulo}
             onSuccess={() => {}}

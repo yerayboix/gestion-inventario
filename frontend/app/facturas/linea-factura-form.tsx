@@ -8,7 +8,7 @@ import { LibroComboboxSimple } from "@/components/ui/libro-combobox-simple";
 import { DeleteIcon, DeleteIconHandle } from "@/components/ui/delete";
 import { CreateLineaFacturaData } from "@/lib/types/facturacion/linea-factura";
 import { Libro } from "@/lib/types/inventario/libro";
-import { BookOpen, Euro, Package, Calculator } from "lucide-react";
+import { Euro, Package, Calculator, Book } from "lucide-react";
 
 interface LineaFacturaFormProps {
   lineas: CreateLineaFacturaData[];
@@ -73,12 +73,16 @@ export function LineaFacturaForm({
 
         <div className="w-24 flex flex-col gap-2">
           <label className="text-sm font-medium">Cantidad</label>
-          <Input
-            type="number"
-            min="1"
-            value={cantidad}
-            onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
-          />
+          <div className="relative">
+            <Package className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="number"
+              min="1"
+              value={cantidad}
+              onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
+              className="pl-9"
+            />
+          </div>
         </div>
 
         <Button 
@@ -97,7 +101,7 @@ export function LineaFacturaForm({
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
             <div className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5" />
+              <Book className="w-5 h-5" />
               <div>
                 <p className="text-xs text-gray-600 font-medium">Título</p>
                 <p className="text-sm font-semibold truncate">{selectedLibro.titulo}</p>
@@ -148,23 +152,29 @@ export function LineaFacturaForm({
               <TableRow key={index}>
                 <TableCell>{linea.titulo}</TableCell>
                 <TableCell>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={linea.cantidad}
-                    onChange={(e) => handleCantidadChange(index, parseInt(e.target.value) || 1)}
-                    className="w-20"
-                  />
+                  <div className="relative">
+                    <Package className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="number"
+                      min="1"
+                      value={linea.cantidad}
+                      onChange={(e) => handleCantidadChange(index, parseInt(e.target.value) || 1)}
+                      className="w-20 pl-8"
+                    />
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={linea.precio}
-                    onChange={(e) => handlePrecioChange(index, parseFloat(e.target.value) || 0)}
-                    className="w-24"
-                  />
+                  <div className="relative">
+                    <Euro className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={linea.precio}
+                      onChange={(e) => handlePrecioChange(index, parseFloat(e.target.value) || 0)}
+                      className="w-24 pl-8"
+                    />
+                  </div>
                 </TableCell>
                 <TableCell>{linea.importe?.toFixed(2)}€</TableCell>
                 <TableCell>

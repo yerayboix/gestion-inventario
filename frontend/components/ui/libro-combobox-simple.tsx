@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLibros, useDebounce } from "@/lib/hooks";
 import { Libro } from "@/lib/types/inventario/libro";
+import { Book } from "lucide-react";
 
 interface LibroComboboxSimpleProps {
   selectedLibro: Libro | null;
@@ -95,11 +96,15 @@ export function LibroComboboxSimple({
         disabled={disabled}
       >
         {selectedLibro ? (
-          <span className="truncate">
-            {selectedLibro.titulo} - {selectedLibro.precio}€
+          <span className="truncate flex items-center gap-2">
+            <Book className="h-4 w-4 text-muted-foreground" />
+            {selectedLibro.titulo}
           </span>
         ) : (
-          placeholder
+          <span className="flex items-center gap-2">
+            <Book className="h-4 w-4 text-muted-foreground" />
+            {placeholder}
+          </span>
         )}
         <span className={`transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
       </Button>
@@ -113,14 +118,17 @@ export function LibroComboboxSimple({
           }`}
         >
           <div className="p-2">
-            <Input
-              placeholder="Buscar libro..."
-              value={searchTerm}
-              onChange={handleInputChange}
-              onClick={handleInputClick}
-              className="mb-2"
-              autoFocus
-            />
+            <div className="relative">
+              <Book className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar libro..."
+                value={searchTerm}
+                onChange={handleInputChange}
+                onClick={handleInputClick}
+                className="mb-2 pl-9"
+                autoFocus
+              />
+            </div>
             
             <div className="max-h-60 overflow-y-auto">
               {isLoading && <div className="p-2 text-sm text-gray-500">Buscando...</div>}

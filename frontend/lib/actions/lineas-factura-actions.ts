@@ -1,22 +1,42 @@
 "use server";
 
-import { createLineaFactura, updateLineaFactura, deleteLineaFactura } from "../data/facturacion/lineas-factura";
 import { revalidatePath } from "next/cache";
-import type { LineaFactura } from "@/lib/types/facturacion/linea-factura";
+import { CreateLineaFacturaData, UpdateLineaFacturaData } from "../types/facturacion/linea-factura";
 import type { ActionResponse } from "@/lib/types/common";
 
-type CreateLineaFacturaParams = {
-  factura: number;
-  libro: number;
-  cantidad: number;
-  precio: number;
-  descuento?: number | null;
-};
-
-export async function createLineaFacturaAction(values: CreateLineaFacturaParams): Promise<ActionResponse> {
+export async function createLineaFacturaAction(facturaId: string, data: CreateLineaFacturaData): Promise<ActionResponse> {
   try {
-    await createLineaFactura(values);
-    revalidatePath("/facturas");
+    const requestData = {
+      libro: data.libro,
+      cantidad: data.cantidad,
+      precio: data.precio,
+      descuento: data.descuento,
+      factura: Number(facturaId)
+    };
+    
+    console.log('Datos a enviar para crear línea:', JSON.stringify(requestData, null, 2));
+    console.log('facturaId:', facturaId, 'tipo:', typeof facturaId);
+    console.log('factura en requestData:', requestData.factura, 'tipo:', typeof requestData.factura);
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/facturacion/lineas-factura/`,
+      {
+        method: 'POST',
+        headers: {
+          "X-API-Key": process.env.API_KEY || "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error response:', response.status, errorText);
+      throw new Error(`Error al crear la línea de factura: ${response.status} - ${errorText}`);
+    }
+
+    revalidatePath(`/facturas/${facturaId}`);
     return { success: true };
   } catch (error) {
     console.error('Error al crear la línea de factura:', error);
@@ -24,13 +44,37 @@ export async function createLineaFacturaAction(values: CreateLineaFacturaParams)
   }
 }
 
-export async function updateLineaFacturaAction(
-  id: number,
-  data: Partial<Omit<LineaFactura, 'id'>>
-): Promise<ActionResponse> {
+export async function updateLineaFacturaAction(id: string, data: UpdateLineaFacturaData, facturaId: string): Promise<ActionResponse> {
   try {
-    await updateLineaFactura(id, data);
-    revalidatePath("/facturas");
+    const requestData = {
+      libro: data.libro,
+      cantidad: data.cantidad,
+      precio: data.precio,
+      descuento: data.descuento,
+      factura: Number(facturaId)
+    };
+    
+    console.log('Datos a enviar para actualizar línea:', JSON.stringify(requestData, null, 2));
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/facturacion/lineas-factura/${id}/`,
+      {
+        method: 'PUT',
+        headers: {
+          "X-API-Key": process.env.API_KEY || "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error response:', response.status, errorText);
+      throw new Error(`Error al actualizar la línea de factura: ${response.status} - ${errorText}`);
+    }
+
+    revalidatePath(`/facturas`);
     return { success: true };
   } catch (error) {
     console.error('Error al actualizar la línea de factura:', error);
@@ -38,10 +82,24 @@ export async function updateLineaFacturaAction(
   }
 }
 
-export async function deleteLineaFacturaAction(id: number): Promise<ActionResponse> {
+export async function deleteLineaFacturaAction(id: string): Promise<ActionResponse> {
   try {
-    await deleteLineaFactura(id);
-    revalidatePath("/facturas");
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/facturacion/lineas-factura/${id}/`,
+      {
+        method: 'DELETE',
+        headers: {
+          "X-API-Key": process.env.API_KEY || "",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al eliminar la línea de factura");
+    }
+
+    revalidatePath(`/facturas`);
     return { success: true };
   } catch (error) {
     console.error('Error al eliminar la línea de factura:', error);

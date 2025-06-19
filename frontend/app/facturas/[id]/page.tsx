@@ -24,13 +24,18 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
   }
 
   // Calcular totales para mostrar
-  const sumaYSigue = lineas?.reduce((sum, linea) => sum + (linea.importe || 0), 0) || 0;
-  const importeDescuento = sumaYSigue * ((factura.descuento || 0) / 100);
+  const sumaYSigue = lineas?.reduce((sum, linea) => sum + Number(linea.importe || 0), 0) || 0;
+  const descuento = Number(factura.descuento || 0);
+  const iva = Number(factura.iva || 0);
+  const gastosEnvio = Number(factura.gastos_envio || 0);
+  const recargoEquivalencia = Number(factura.recargo_equivalencia || 0);
+  
+  const importeDescuento = sumaYSigue * (descuento / 100);
   const baseIva = sumaYSigue - importeDescuento;
-  const importeIva = baseIva * ((factura.iva || 0) / 100);
+  const importeIva = baseIva * (iva / 100);
   const subtotal = baseIva + importeIva;
-  const importeRecargoEquivalencia = subtotal * ((factura.recargo_equivalencia || 0) / 100);
-  const totalCalculado = subtotal + (factura.gastos_envio || 0) + importeRecargoEquivalencia;
+  const importeRecargoEquivalencia = subtotal * (recargoEquivalencia / 100);
+  const totalCalculado = subtotal + gastosEnvio + importeRecargoEquivalencia;
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
@@ -133,9 +138,9 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
                   <TableRow key={linea.id}>
                     <TableCell className="font-medium">{linea.libro.titulo}</TableCell>
                     <TableCell className="text-center">{linea.cantidad}</TableCell>
-                    <TableCell className="text-center">{formatCurrency(linea.libro.precio * (1 + (factura.iva || 0) / 100))}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(linea.precio)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(linea.importe || 0)}</TableCell>
+                    <TableCell className="text-center">{formatCurrency(Number(linea.libro.precio) * (1 + iva / 100))}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(Number(linea.precio))}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(Number(linea.importe) || 0)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -164,11 +169,11 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
             </div>
 
             {/* Descuentos */}
-            {(factura.descuento || 0) > 0 && (
+            {descuento > 0 && (
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Descuento general:</span>
-                  <span className="font-medium">{factura.descuento}%</span>
+                  <span className="font-medium">{descuento}%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Descuento aplicado:</span>
@@ -186,11 +191,11 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
             </div>
 
             {/* IVA */}
-            {(factura.iva || 0) > 0 && (
+            {iva > 0 && (
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">IVA:</span>
-                  <span className="font-medium">{factura.iva}%</span>
+                  <span className="font-medium">{iva}%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Importe IVA:</span>
@@ -208,21 +213,21 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
             </div>
 
             {/* Gastos de envío */}
-            {(factura.gastos_envio || 0) > 0 && (
+            {gastosEnvio > 0 && (
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Gastos de envío:</span>
-                  <span className="font-medium">{formatCurrency(factura.gastos_envio || 0)}</span>
+                  <span className="font-medium">{formatCurrency(gastosEnvio)}</span>
                 </div>
               </div>
             )}
 
             {/* Recargo de equivalencia */}
-            {(factura.recargo_equivalencia || 0) > 0 && (
+            {recargoEquivalencia > 0 && (
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Rec. Equivalencia:</span>
-                  <span className="font-medium">{factura.recargo_equivalencia}%</span>
+                  <span className="font-medium">{recargoEquivalencia}%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Importe recargo:</span>
@@ -235,7 +240,7 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
             <div className="border-t-2 border-primary pt-4">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-bold">TOTAL:</span>
-                <span className="text-2xl font-bold text-primary">{formatCurrency(factura.total || totalCalculado)}</span>
+                <span className="text-2xl font-bold text-primary">{formatCurrency(Number(factura.total) || totalCalculado)}</span>
               </div>
             </div>
           </div>

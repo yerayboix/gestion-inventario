@@ -19,6 +19,13 @@ export interface CreateLineaFacturaData {
   importe?: number | null;
 }
 
+export interface UpdateLineaFacturaData {
+  libro: number; // Solo el ID del libro
+  cantidad: number;
+  precio: number;
+  descuento?: number | null;
+}
+
 export interface GetLineasFacturaParams {
   page?: number;
   pageSize?: number;

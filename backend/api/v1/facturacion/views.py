@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from facturacion.models import Factura, LineaFactura
-from .serializers import FacturaSerializer, FacturaCreateSerializer, LineaFacturaSerializer
+from .serializers import FacturaSerializer, FacturaCreateSerializer, LineaFacturaSerializer, LineaFacturaCreateSerializer, LineaFacturaUpdateSerializer
 from .filters import FacturaFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -25,4 +25,11 @@ class FacturaViewSet(viewsets.ModelViewSet):
 
 class LineaFacturaViewSet(viewsets.ModelViewSet):
     queryset = LineaFactura.objects.all().order_by('libro__titulo')
-    serializer_class = LineaFacturaSerializer 
+    
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            if self.action == 'create':
+                return LineaFacturaCreateSerializer
+            else:
+                return LineaFacturaUpdateSerializer
+        return LineaFacturaSerializer 

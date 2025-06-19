@@ -16,7 +16,12 @@ class LineaFacturaSerializer(serializers.ModelSerializer):
 class LineaFacturaCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineaFactura
-        fields = ['libro', 'cantidad', 'precio', 'descuento', 'importe']
+        fields = ['libro', 'cantidad', 'precio', 'descuento', 'importe', 'factura']
+
+class LineaFacturaUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LineaFactura
+        fields = ['libro', 'cantidad', 'precio', 'descuento', 'importe', 'factura']
 
 class FacturaSerializer(serializers.ModelSerializer):
     lineas = LineaFacturaSerializer(many=True, read_only=True)

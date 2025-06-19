@@ -223,14 +223,13 @@ class Factura(models.Model):
         importe_iva = Decimal('0.00')
         if self.iva:
             importe_iva = base * (Decimal(self.iva) / Decimal('100.00'))
-        
-        # Calcular recargo de equivalencia si aplica
-        importe_recargo = Decimal('0.00')
-        if self.recargo_equivalencia:
-            importe_recargo = base * (Decimal(self.recargo_equivalencia) / Decimal('100.00'))
+    
+        importe_gastos_envio = Decimal('0.00')
+        if self.gastos_envio:
+            importe_gastos_envio = self.gastos_envio
         
         # Calcular total
-        self.total = base + importe_iva + importe_recargo
+        self.total = base + importe_iva + importe_gastos_envio
 
     def clean(self):
         """

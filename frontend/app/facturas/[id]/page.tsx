@@ -29,7 +29,7 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
   const descuento = Number(factura.descuento || 0);
   const iva = Number(factura.iva || 0);
   const gastosEnvio = Number(factura.gastos_envio || 0);
-  
+
   const importeDescuento = sumaYSigue * (descuento / 100);
   const baseIva = sumaYSigue - importeDescuento;
   const importeIva = baseIva * (iva / 100);
@@ -125,7 +125,7 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
         </CardContent>
       </Card>
 
-      
+
 
       {/* Líneas de factura */}
       <Card className="border-none shadow-none">
@@ -180,19 +180,18 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
             </div>
 
             {/* Descuentos */}
-            {descuento > 0 && (
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Descuento general:</span>
-                  <span className="font-medium">{descuento}%</span>
-                </div>
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Descuento general:</span>
+                <span className="font-medium">{descuento}%</span>
+              </div>
+              {descuento > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Descuento aplicado:</span>
                   <span className="font-medium text-red-600">-{formatCurrency(importeDescuento)}</span>
                 </div>
-              </div>
-            )}
-
+              )}
+            </div>
             {/* Base imponible */}
             <div className="border-t pt-4">
               <div className="flex justify-between items-center">

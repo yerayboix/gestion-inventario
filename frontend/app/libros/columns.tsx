@@ -20,11 +20,6 @@ export const columns: ColumnDef<Libro>[] = [
     header: "Título",
   },
   {
-    accessorKey: "pvp",
-    header: "PVP",
-    cell: ({ row }) => formatCurrency(row.getValue("pvp")),
-  },
-  {
     accessorKey: "precio",
     header: "Precio",
     cell: ({ row }) => formatCurrency(row.getValue("precio")),

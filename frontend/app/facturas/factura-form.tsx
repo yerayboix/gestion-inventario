@@ -45,7 +45,7 @@ export function FacturaForm({ factura }: FacturaFormProps) {
   const router = useRouter();
   const [lineas, setLineas] = useState<CreateLineaFacturaData[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Estados para los cálculos de la factura
   const [descuentoGeneral, setDescuentoGeneral] = useState(0);
   const [ivaPorcentaje, setIvaPorcentaje] = useState(21);
@@ -104,7 +104,6 @@ export function FacturaForm({ factura }: FacturaFormProps) {
     } catch (error) {
       toast.error("Error al crear la factura");
       console.error(error);
-    } finally {
       setIsSubmitting(false);
     }
   };

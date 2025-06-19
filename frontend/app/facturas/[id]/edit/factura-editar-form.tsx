@@ -51,7 +51,7 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
   const [lineas, setLineas] = useState<LineaFacturaConId[]>([]);
   const [lineasAEliminar, setLineasAEliminar] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Estados para los cálculos de la factura
   const [descuentoGeneral, setDescuentoGeneral] = useState(Number(factura.descuento) || 0);
   const [ivaPorcentaje, setIvaPorcentaje] = useState(Number(factura.iva) || 21);
@@ -155,7 +155,7 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
             descuento: linea.descuento,
             importe: linea.importe,
           });
-          
+
           await createLineaFacturaAction(facturaId, {
             libro: linea.libro,
             titulo: linea.titulo,
@@ -183,12 +183,12 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
   const handleRemoveLinea = (index: number) => {
     const newLineas = [...lineas];
     const lineaEliminada = newLineas.splice(index, 1)[0];
-    
+
     // Si es una línea existente, marcarla para eliminar
     if (lineaEliminada.id) {
       setLineasAEliminar([...lineasAEliminar, lineaEliminada.id]);
     }
-    
+
     setLineas(newLineas);
   };
 

@@ -18,6 +18,7 @@ export interface Factura {
   base_iva: number | null;
   iva: number | null;
   recargo_equivalencia: number | null;
+  gastos_envio: number | null;
   total: number | null;
   notas: string | null;
   estado: EstadoFactura;

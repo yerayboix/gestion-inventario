@@ -114,9 +114,9 @@ export function FacturaForm({ factura }: FacturaFormProps) {
                 name="nombre"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre comercial</FormLabel>
+                    <FormLabel>Nombre *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nombre comercial" {...field} />
+                      <Input placeholder="Nombre" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -170,7 +170,7 @@ export function FacturaForm({ factura }: FacturaFormProps) {
                 name="cliente"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cliente *</FormLabel>
+                    <FormLabel>Cliente</FormLabel>
                     <FormControl>
                       <Input placeholder="Nombre del cliente" {...field} />
                     </FormControl>

@@ -96,7 +96,7 @@ export function LibroComboboxSimple({
       >
         {selectedLibro ? (
           <span className="truncate">
-            {selectedLibro.titulo} - {selectedLibro.pvp}€
+            {selectedLibro.titulo} - {selectedLibro.precio}€
           </span>
         ) : (
           placeholder

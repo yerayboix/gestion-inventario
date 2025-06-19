@@ -3,7 +3,7 @@ import type { Libro } from "../inventario/libro";
 export interface LineaFactura {
   id: number;
   factura: number;
-  libro: Pick<Libro, 'id' | 'titulo' | 'pvp' | 'precio' | 'descuento'>;
+  libro: Pick<Libro, 'id' | 'titulo' | 'precio' | 'descuento'>;
   cantidad: number;
   precio: number;
   descuento: number | null;
@@ -12,6 +12,7 @@ export interface LineaFactura {
 
 export interface CreateLineaFacturaData {
   libro: number; // Solo el ID del libro
+  titulo: string;
   cantidad: number;
   precio: number;
   descuento?: number | null;

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LibroComboboxSimple } from "@/components/ui/libro-combobox-simple";
+import { DeleteIcon, DeleteIconHandle } from "@/components/ui/delete";
 import { CreateLineaFacturaData } from "@/lib/types/facturacion/linea-factura";
 import { Libro } from "@/lib/types/inventario/libro";
+import { BookOpen, Euro, Package, Calculator } from "lucide-react";
 
 interface LineaFacturaFormProps {
   lineas: CreateLineaFacturaData[];
@@ -23,12 +25,14 @@ export function LineaFacturaForm({
 }: LineaFacturaFormProps) {
   const [selectedLibro, setSelectedLibro] = useState<Libro | null>(null);
   const [cantidad, setCantidad] = useState(1);
+  const deleteIconRef = useRef<DeleteIconHandle | null>(null);
 
   const handleAddLinea = () => {
     if (!selectedLibro) return;
 
     const nuevaLinea: CreateLineaFacturaData = {
       libro: selectedLibro.id, // Solo el ID del libro
+      titulo: selectedLibro.titulo,
       cantidad,
       precio: selectedLibro.precio,
       descuento: null,
@@ -58,7 +62,7 @@ export function LineaFacturaForm({
     <div className="space-y-4">
       {/* Formulario para añadir nueva línea */}
       <div className="flex gap-2 items-end">
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col gap-2">
           <label className="text-sm font-medium">Seleccionar libro</label>
           <LibroComboboxSimple
             selectedLibro={selectedLibro}
@@ -67,7 +71,7 @@ export function LineaFacturaForm({
           />
         </div>
 
-        <div className="w-24">
+        <div className="w-24 flex flex-col gap-2">
           <label className="text-sm font-medium">Cantidad</label>
           <Input
             type="number"
@@ -87,16 +91,43 @@ export function LineaFacturaForm({
 
       {/* Información del libro seleccionado */}
       {selectedLibro && (
-        <div className="p-3 bg-gray-50 rounded-md">
-          <p className="text-sm">
-            <strong>Libro seleccionado:</strong> {selectedLibro.titulo}
-            <br />
-            <strong>Precio:</strong> {selectedLibro.precio}€
-            <br />
-            <strong>Stock disponible:</strong> {selectedLibro.cantidad}
-            <br />
-            <strong>Total:</strong> {(selectedLibro.precio * cantidad).toFixed(2)}€
+        <div className="p-4 bg-accent rounded-lg relative">
+          <p className="text-xs text-muted-foreground absolute top-2 left-3 font-medium">
+            Libro seleccionado:
           </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5" />
+              <div>
+                <p className="text-xs text-gray-600 font-medium">Título</p>
+                <p className="text-sm font-semibold truncate">{selectedLibro.titulo}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Euro className="w-5 h-5" />
+              <div>
+                <p className="text-xs text-gray-600 font-medium">Precio</p>
+                <p className="text-sm font-semibold">{selectedLibro.precio}€</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Package className="w-5 h-5" />
+              <div>
+                <p className="text-xs text-gray-600 font-medium">Stock</p>
+                <p className="text-sm font-semibold">{selectedLibro.cantidad} unidades</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Calculator className="w-5 h-5" />
+              <div>
+                <p className="text-xs text-gray-600 font-medium">Total</p>
+                <p className="text-sm font-semibold">{(selectedLibro.precio * cantidad).toFixed(2)}€</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -105,7 +136,7 @@ export function LineaFacturaForm({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Libro ID</TableHead>
+              <TableHead>Título</TableHead>
               <TableHead>Cantidad</TableHead>
               <TableHead>Precio</TableHead>
               <TableHead>Importe</TableHead>
@@ -115,7 +146,7 @@ export function LineaFacturaForm({
           <TableBody>
             {lineas.map((linea, index) => (
               <TableRow key={index}>
-                <TableCell>{linea.libro}</TableCell>
+                <TableCell>{linea.titulo}</TableCell>
                 <TableCell>
                   <Input
                     type="number"
@@ -139,10 +170,13 @@ export function LineaFacturaForm({
                 <TableCell>
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
+                    className="hover:bg-red-50"
                     onClick={() => onRemoveLinea(index)}
+                    onMouseEnter={() => deleteIconRef.current?.startAnimation()}
+                    onMouseLeave={() => deleteIconRef.current?.stopAnimation()}
                   >
-                    Eliminar
+                    <DeleteIcon ref={deleteIconRef} className="text-red-500" />
                   </Button>
                 </TableCell>
               </TableRow>

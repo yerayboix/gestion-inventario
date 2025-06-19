@@ -173,6 +173,42 @@ class Factura(models.Model):
             return f"Factura {self.numero} - {self.get_estado_display()}"
         return f"Factura {self.numero_borrador or self.id} - {self.get_estado_display()}"
 
+    def reducir_stock_libros(self):
+        """
+        Reduce el stock de todos los libros en las líneas de la factura
+        """
+        for linea in self.lineas.all():
+            libro = linea.libro
+            if libro.cantidad >= linea.cantidad:
+                libro.cantidad -= linea.cantidad
+                libro.save()
+            else:
+                raise ValidationError(
+                    f"No hay suficiente stock del libro '{libro.titulo}'. "
+                    f"Stock disponible: {libro.cantidad}, Cantidad solicitada: {linea.cantidad}"
+                )
+
+    def recuperar_stock_libros(self):
+        """
+        Recupera el stock de todos los libros en las líneas de la factura
+        """
+        for linea in self.lineas.all():
+            libro = linea.libro
+            libro.cantidad += linea.cantidad
+            libro.save()
+
+    def verificar_stock_disponible(self):
+        """
+        Verifica que haya suficiente stock para todos los libros en la factura
+        """
+        for linea in self.lineas.all():
+            libro = linea.libro
+            if libro.cantidad < linea.cantidad:
+                raise ValidationError(
+                    f"No hay suficiente stock del libro '{libro.titulo}'. "
+                    f"Stock disponible: {libro.cantidad}, Cantidad solicitada: {linea.cantidad}"
+                )
+
     def generar_numero_factura(self):
         """
         Genera el siguiente número de factura disponible para el año de la factura
@@ -243,6 +279,15 @@ class Factura(models.Model):
 
     def save(self, *args, **kwargs):
         is_new = not self.pk
+        estado_anterior = None
+        
+        if not is_new:
+            # Obtener el estado anterior para detectar cambios
+            try:
+                factura_anterior = Factura.objects.get(pk=self.pk)
+                estado_anterior = factura_anterior.estado
+            except Factura.DoesNotExist:
+                pass
         
         # Si es una nueva factura y es borrador, generar número de borrador
         if is_new and self.estado == 'borrador':
@@ -255,6 +300,18 @@ class Factura(models.Model):
         
         # Guardar la factura primero
         super().save(*args, **kwargs)
+        
+        # Control de stock según el estado
+        if is_new and self.estado == 'borrador':
+            # Nueva factura en borrador: verificar y reducir stock
+            self.verificar_stock_disponible()
+            self.reducir_stock_libros()
+        elif not is_new and estado_anterior == 'borrador' and self.estado == 'emitida':
+            # Cambio de borrador a emitida: el stock ya está reducido, no hacer nada
+            pass
+        elif not is_new and estado_anterior in ['emitida', 'pagada'] and self.estado == 'anulada':
+            # Anulación de factura emitida: recuperar stock
+            self.recuperar_stock_libros()
         
         # Calcular totales solo si la factura ya tiene ID (no es nueva)
         if not is_new:
@@ -281,6 +338,10 @@ class Factura(models.Model):
         if self.estado == 'anulada':
             raise ValidationError("La factura ya está anulada")
         
+        # Recuperar stock si la factura estaba emitida o pagada
+        if self.estado in ['emitida', 'pagada']:
+            self.recuperar_stock_libros()
+        
         self.estado = 'anulada'
         self.motivo_anulacion = motivo
         self.fecha_anulacion = timezone.now()
@@ -289,11 +350,17 @@ class Factura(models.Model):
     def delete(self, *args, **kwargs):
         """
         Previene la eliminación de facturas que no sean borradores
+        y recupera el stock si se elimina un borrador
         """
         if self.estado != 'borrador':
             raise ValidationError(
                 "No se pueden eliminar facturas emitidas. Use anulación en su lugar."
             )
+        
+        # Si es un borrador, recuperar el stock antes de eliminar
+        if self.estado == 'borrador':
+            self.recuperar_stock_libros()
+        
         super().delete(*args, **kwargs)
 
 
@@ -345,6 +412,14 @@ class LineaFactura(models.Model):
         
         if self.precio < 0:
             raise ValidationError('El precio no puede ser negativo')
+        
+        # Verificar stock disponible solo si la factura es borrador
+        if self.factura and self.factura.estado == 'borrador':
+            if self.libro.cantidad < self.cantidad:
+                raise ValidationError(
+                    f'No hay suficiente stock del libro "{self.libro.titulo}". '
+                    f'Stock disponible: {self.libro.cantidad}, Cantidad solicitada: {self.cantidad}'
+                )
 
     def calcular_importe(self):
         """
@@ -358,10 +433,51 @@ class LineaFactura(models.Model):
         return importe.quantize(Decimal('0.01'))
 
     def save(self, *args, **kwargs):
+        is_new = not self.pk
+        cantidad_anterior = 0
+        
+        if not is_new:
+            # Obtener la cantidad anterior para detectar cambios
+            try:
+                linea_anterior = LineaFactura.objects.get(pk=self.pk)
+                cantidad_anterior = linea_anterior.cantidad
+            except LineaFactura.DoesNotExist:
+                pass
+        
         # Calcular importe
         self.importe = self.calcular_importe()
         
         super().save(*args, **kwargs)
+        
+        # Control de stock para cambios en líneas de facturas en borrador
+        if self.factura.estado == 'borrador':
+            if is_new:
+                # Nueva línea: reducir stock
+                if self.libro.cantidad >= self.cantidad:
+                    self.libro.cantidad -= self.cantidad
+                    self.libro.save()
+                else:
+                    raise ValidationError(
+                        f"No hay suficiente stock del libro '{self.libro.titulo}'. "
+                        f"Stock disponible: {self.libro.cantidad}, Cantidad solicitada: {self.cantidad}"
+                    )
+            elif not is_new and cantidad_anterior != self.cantidad:
+                # Línea modificada: ajustar stock
+                diferencia = self.cantidad - cantidad_anterior
+                if diferencia > 0:
+                    # Aumentó la cantidad: reducir más stock
+                    if self.libro.cantidad >= diferencia:
+                        self.libro.cantidad -= diferencia
+                        self.libro.save()
+                    else:
+                        raise ValidationError(
+                            f"No hay suficiente stock del libro '{self.libro.titulo}'. "
+                            f"Stock disponible: {self.libro.cantidad}, Cantidad adicional solicitada: {diferencia}"
+                        )
+                else:
+                    # Disminuyó la cantidad: recuperar stock
+                    self.libro.cantidad += abs(diferencia)
+                    self.libro.save()
         
         # Recalcular totales de la factura usando update para evitar recursión
         self.factura.calcular_totales()
@@ -369,6 +485,17 @@ class LineaFactura(models.Model):
             base_iva=self.factura.base_iva,
             total=self.factura.total
         )
+
+    def delete(self, *args, **kwargs):
+        """
+        Recupera el stock cuando se elimina una línea de factura en borrador
+        """
+        if self.factura.estado == 'borrador':
+            # Recuperar stock antes de eliminar la línea
+            self.libro.cantidad += self.cantidad
+            self.libro.save()
+        
+        super().delete(*args, **kwargs)
 
     class Meta:
         verbose_name = "Línea de Factura"

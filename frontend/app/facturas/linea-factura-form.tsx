@@ -192,6 +192,9 @@ export function LineaFacturaForm({
                       className="w-20 pl-8"
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Stock: {linea.stock || 0} unidades
+                  </p>
                 </TableCell>
                 <TableCell>
                   <div className="relative">

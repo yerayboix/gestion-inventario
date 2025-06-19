@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,9 +25,10 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { emitirFacturaAction, anularFacturaAction } from "@/lib/actions/facturas-actions";
+import { emitirFacturaAction, anularFacturaAction, deleteFacturaAction } from "@/lib/actions/facturas-actions";
 import { toast } from "sonner";
 import type { Factura } from "@/lib/types/facturacion/factura";
+import { DeleteIcon, DeleteIconHandle } from "@/components/ui/delete";
 
 interface FacturaActionsProps {
   factura: Factura;
@@ -37,6 +38,7 @@ export function FacturaActions({ factura }: FacturaActionsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [motivoAnulacion, setMotivoAnulacion] = useState("");
   const [showAnularDialog, setShowAnularDialog] = useState(false);
+  const deleteIconRef = useRef<DeleteIconHandle>(null);
   const router = useRouter();
 
   const handleEmitirFactura = async () => {
@@ -82,30 +84,111 @@ export function FacturaActions({ factura }: FacturaActionsProps) {
     }
   };
 
+  const handleEliminarFactura = async () => {
+    setIsLoading(true);
+    try {
+      const result = await deleteFacturaAction(factura.id.toString());
+      
+      if (result.success) {
+        toast.success("Factura eliminada correctamente");
+        router.push("/facturas");
+      } else {
+        toast.error(result.error || "Error al eliminar la factura");
+      }
+    } catch {
+      toast.error("Error al eliminar la factura");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (factura.estado === "borrador") {
     return (
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button disabled={isLoading}>
-            {isLoading ? "Emitiendo..." : "Emitir Factura"}
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Emitir factura?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción cambiará el estado de la factura de &quot;Borrador&quot; a &quot;Emitida&quot; y generará un número oficial de factura. 
-              Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleEmitirFactura} disabled={isLoading}>
-              {isLoading ? "Emitiendo..." : "Emitir Factura"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <div className="flex items-center gap-3">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button 
+              disabled={isLoading}
+              variant="default"
+            >
+              {isLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
+                  Emitiendo...
+                </>
+              ) : (
+                "Emitir Factura"
+              )}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Emitir factura?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción cambiará el estado de la factura de &quot;Borrador&quot; a &quot;Emitida&quot; y generará un número oficial de factura. 
+                Una vez emitida, la factura no podrá ser modificada y solo podrá ser anulada.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isLoading}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleEmitirFactura} 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
+                    Emitiendo...
+                  </>
+                ) : (
+                  "Emitir Factura"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="hover:bg-red-50 border border-red-200"
+              onMouseEnter={() => deleteIconRef.current?.startAnimation()}
+              onMouseLeave={() => deleteIconRef.current?.stopAnimation()}
+              disabled={isLoading}
+            >
+              <DeleteIcon ref={deleteIconRef} className="text-red-500" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Eliminar factura?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción eliminará permanentemente la factura y recuperará el stock de los libros. 
+                Esta acción no se puede deshacer.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isLoading}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleEliminarFactura} 
+                disabled={isLoading}
+                className="bg-red-500 hover:bg-red-600"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
+                    Eliminando...
+                  </>
+                ) : (
+                  "Eliminar Factura"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     );
   }
 
@@ -113,7 +196,10 @@ export function FacturaActions({ factura }: FacturaActionsProps) {
     return (
       <Dialog open={showAnularDialog} onOpenChange={setShowAnularDialog}>
         <DialogTrigger asChild>
-          <Button variant="destructive" disabled={isLoading}>
+          <Button 
+            variant="outline"
+            disabled={isLoading}
+          >
             {isLoading ? "Anulando..." : "Anular Factura"}
           </Button>
         </DialogTrigger>
@@ -150,7 +236,14 @@ export function FacturaActions({ factura }: FacturaActionsProps) {
               onClick={handleAnularFactura}
               disabled={isLoading || !motivoAnulacion.trim()}
             >
-              {isLoading ? "Anulando..." : "Anular Factura"}
+              {isLoading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
+                  Anulando...
+                </>
+              ) : (
+                "Anular Factura"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

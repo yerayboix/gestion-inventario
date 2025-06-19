@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createFactura, updateFactura, emitirFactura, anularFactura } from "../data/facturacion/facturas";
+import { createFactura, updateFactura, emitirFactura, anularFactura, deleteFactura } from "../data/facturacion/facturas";
 import { Factura, CreateFacturaData } from "../types/facturacion/factura";
 import type { ActionResponse } from "@/lib/types/common";
 
@@ -42,5 +42,15 @@ export async function anularFacturaAction(id: string, motivo: string): Promise<A
     return { success: true };
   } catch {
     return { success: false, error: "Error al anular la factura" };
+  }
+}
+
+export async function deleteFacturaAction(id: string): Promise<ActionResponse> {
+  try {
+    await deleteFactura(id);
+    revalidatePath("/facturas");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Error al eliminar la factura" };
   }
 }

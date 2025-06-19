@@ -165,3 +165,24 @@ export async function anularFactura(id: string, motivo: string) {
   const data: Factura = await response.json();
   return data;
 }
+
+export async function deleteFactura(id: string) {
+  await requireUser();
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/${id}/`,
+    {
+      method: 'DELETE',
+      headers: {
+        "X-API-Key": process.env.API_KEY || "",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Error al eliminar la factura");
+  }
+
+  return true;
+}

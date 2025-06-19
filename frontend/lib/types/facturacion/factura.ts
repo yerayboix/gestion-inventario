@@ -39,6 +39,7 @@ export interface CreateFacturaData {
   base_iva?: number;
   iva?: number;
   recargo_equivalencia?: number;
+  gastos_envio?: number;
   total?: number;
   notas?: string;
   estado: EstadoFactura;

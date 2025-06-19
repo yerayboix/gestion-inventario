@@ -37,6 +37,21 @@ export function FacturaForm({ factura }: FacturaFormProps) {
   const router = useRouter();
   const [lineas, setLineas] = useState<CreateLineaFacturaData[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Estados para los cálculos de la factura
+  const [descuentoGeneral, setDescuentoGeneral] = useState(0);
+  const [ivaPorcentaje, setIvaPorcentaje] = useState(21);
+  const [gastosEnvio, setGastosEnvio] = useState(0);
+  const [recargoEquivalencia, setRecargoEquivalencia] = useState(0);
+
+  // Calcular totales
+  const sumaYSigue = lineas.reduce((sum, linea) => sum + (linea.importe || 0), 0);
+  const importeDescuento = sumaYSigue * (descuentoGeneral / 100);
+  const baseIva = sumaYSigue - importeDescuento;
+  const importeIva = baseIva * (ivaPorcentaje / 100);
+  const subtotal = baseIva + importeIva;
+  const importeRecargoEquivalencia = subtotal * (recargoEquivalencia / 100);
+  const total = subtotal + gastosEnvio + importeRecargoEquivalencia;
 
   const form = useForm<FacturaFormData>({
     resolver: zodResolver(facturaSchema),
@@ -63,6 +78,12 @@ export function FacturaForm({ factura }: FacturaFormProps) {
         ...data,
         fecha: new Date().toISOString().split('T')[0], // Fecha actual
         estado: "borrador",
+        descuento: Number(descuentoGeneral),
+        base_iva: Math.round(Number(baseIva) * 100) / 100,
+        iva: Number(ivaPorcentaje),
+        recargo_equivalencia: Number(recargoEquivalencia),
+        gastos_envio: Number(gastosEnvio),
+        total: Math.round(Number(total) * 100) / 100,
         lineas: lineas,
       };
 
@@ -226,6 +247,14 @@ export function FacturaForm({ factura }: FacturaFormProps) {
               onAddLinea={handleAddLinea}
               onRemoveLinea={handleRemoveLinea}
               onUpdateLinea={handleUpdateLinea}
+              descuentoGeneral={descuentoGeneral}
+              setDescuentoGeneral={setDescuentoGeneral}
+              ivaPorcentaje={ivaPorcentaje}
+              setIvaPorcentaje={setIvaPorcentaje}
+              gastosEnvio={gastosEnvio}
+              setGastosEnvio={setGastosEnvio}
+              recargoEquivalencia={recargoEquivalencia}
+              setRecargoEquivalencia={setRecargoEquivalencia}
             />
           </CardContent>
           {/* Botones de acción */}

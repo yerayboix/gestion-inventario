@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,11 +11,24 @@ import { Libro } from "@/lib/types/inventario/libro";
 import { Euro, Package, Calculator, Book } from "lucide-react";
 import { toast } from "sonner";
 
+// Tipo extendido para manejar propiedades adicionales en el frontend
+interface LineaFacturaWithStock extends CreateLineaFacturaData {
+  stock?: number;
+}
+
 interface LineaFacturaFormProps {
-  lineas: CreateLineaFacturaData[];
+  lineas: LineaFacturaWithStock[];
   onAddLinea: (linea: CreateLineaFacturaData) => void;
   onRemoveLinea: (index: number) => void;
   onUpdateLinea: (index: number, linea: Partial<CreateLineaFacturaData>) => void;
+  descuentoGeneral: number;
+  setDescuentoGeneral: (value: number) => void;
+  ivaPorcentaje: number;
+  setIvaPorcentaje: (value: number) => void;
+  gastosEnvio: number;
+  setGastosEnvio: (value: number) => void;
+  recargoEquivalencia: number;
+  setRecargoEquivalencia: (value: number) => void;
 }
 
 export function LineaFacturaForm({
@@ -23,13 +36,17 @@ export function LineaFacturaForm({
   onAddLinea,
   onRemoveLinea,
   onUpdateLinea,
+  descuentoGeneral,
+  setDescuentoGeneral,
+  ivaPorcentaje,
+  setIvaPorcentaje,
+  gastosEnvio,
+  setGastosEnvio,
+  recargoEquivalencia,
+  setRecargoEquivalencia,
 }: LineaFacturaFormProps) {
   const [selectedLibro, setSelectedLibro] = useState<Libro | null>(null);
   const [cantidad, setCantidad] = useState(1);
-  const [descuentoGeneral, setDescuentoGeneral] = useState(0);
-  const [ivaPorcentaje, setIvaPorcentaje] = useState(21); // IVA por defecto 21%
-  const [gastosEnvio, setGastosEnvio] = useState(0);
-  const [recargoEquivalencia, setRecargoEquivalencia] = useState(0);
   const deleteIconRef = useRef<DeleteIconHandle | null>(null);
 
   // Calcular totales
@@ -41,16 +58,6 @@ export function LineaFacturaForm({
   const importeRecargoEquivalencia = subtotal * (recargoEquivalencia / 100);
   const total = subtotal + gastosEnvio + importeRecargoEquivalencia;
 
-  // Recalcular PVP de todas las líneas cuando cambie el IVA
-  useEffect(() => {
-    if (lineas.length > 0) {
-      lineas.forEach((linea, index) => {
-        const nuevoPvp = Math.round((linea.precio * (1 + (ivaPorcentaje / 100))) * 100) / 100;
-        onUpdateLinea(index, { pvp: nuevoPvp });
-      });
-    }
-  }, [ivaPorcentaje, lineas.length]);
-
   const handleAddLinea = () => {
     if (!selectedLibro) return;
 
@@ -60,18 +67,14 @@ export function LineaFacturaForm({
       return;
     }
 
-    // Calcular PVP como precio + IVA
-    const pvpCalculado = Math.round((selectedLibro.precio * (1 + (ivaPorcentaje / 100))) * 100) / 100;
-
-    const nuevaLinea: CreateLineaFacturaData = {
+    const nuevaLinea: LineaFacturaWithStock = {
       libro: selectedLibro.id, // Solo el ID del libro
       titulo: selectedLibro.titulo,
       cantidad,
       precio: selectedLibro.precio,
-      pvp: pvpCalculado, // PVP calculado como precio + IVA
       descuento: null,
       importe: selectedLibro.precio * cantidad,
-      stock: selectedLibro.cantidad, // Añadir el stock para validaciones futuras
+      stock: selectedLibro.cantidad, // Stock para mostrar en la tabla
     };
 
     onAddLinea(nuevaLinea);
@@ -84,7 +87,7 @@ export function LineaFacturaForm({
   const handleCantidadChange = (index: number, newCantidad: number) => {
     const linea = lineas[index];
     
-    // Validar contra el stock disponible
+    // Obtener el stock de la propiedad adicional
     const stockDisponible = linea.stock || 999;
     
     if (newCantidad > stockDisponible) {
@@ -221,11 +224,12 @@ export function LineaFacturaForm({
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Stock: {linea.stock || 0} unidades
+                    Stock: {linea.stock || 'N/A'} unidades
                   </p>
                 </TableCell>
                 <TableCell>
-                  {linea.pvp}€
+                  {/* Mostrar PVP calculado pero no enviarlo al backend */}
+                  {Math.round((linea.precio * (1 + (ivaPorcentaje / 100))) * 100) / 100}€
                 </TableCell>
                 <TableCell>
                   <div className="relative">

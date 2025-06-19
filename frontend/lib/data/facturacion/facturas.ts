@@ -74,6 +74,8 @@ export async function getFactura(id: number) {
 export async function createFactura(factura: CreateFacturaData) {
   await requireUser();
 
+  console.log('Datos a enviar:', JSON.stringify(factura, null, 2));
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/`,
     {
@@ -87,7 +89,9 @@ export async function createFactura(factura: CreateFacturaData) {
   );
 
   if (!response.ok) {
-    throw new Error("Error al crear la factura");
+    const errorText = await response.text();
+    console.error('Error response:', response.status, errorText);
+    throw new Error(`Error al crear la factura: ${response.status} - ${errorText}`);
   }
 
   const data: Factura = await response.json();

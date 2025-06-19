@@ -15,10 +15,8 @@ export interface CreateLineaFacturaData {
   titulo: string;
   cantidad: number;
   precio: number;
-  pvp: number; // PVP del libro para mostrar en la tabla
   descuento?: number | null;
   importe?: number | null;
-  stock?: number; // Stock disponible para validaciones
 }
 
 export interface GetLineasFacturaParams {

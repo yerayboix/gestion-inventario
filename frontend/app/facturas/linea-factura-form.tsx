@@ -27,8 +27,6 @@ interface LineaFacturaFormProps {
   setIvaPorcentaje: (value: number) => void;
   gastosEnvio: number;
   setGastosEnvio: (value: number) => void;
-  recargoEquivalencia: number;
-  setRecargoEquivalencia: (value: number) => void;
 }
 
 export function LineaFacturaForm({
@@ -42,8 +40,6 @@ export function LineaFacturaForm({
   setIvaPorcentaje,
   gastosEnvio,
   setGastosEnvio,
-  recargoEquivalencia,
-  setRecargoEquivalencia,
 }: LineaFacturaFormProps) {
   const [selectedLibro, setSelectedLibro] = useState<Libro | null>(null);
   const [cantidad, setCantidad] = useState(1);
@@ -55,8 +51,7 @@ export function LineaFacturaForm({
   const baseIva = sumaYSigue - importeDescuento;
   const importeIva = baseIva * (ivaPorcentaje / 100);
   const subtotal = baseIva + importeIva;
-  const importeRecargoEquivalencia = subtotal * (recargoEquivalencia / 100);
-  const total = subtotal + gastosEnvio + importeRecargoEquivalencia;
+  const total = subtotal + gastosEnvio;
 
   const handleAddLinea = () => {
     if (!selectedLibro) return;
@@ -73,7 +68,7 @@ export function LineaFacturaForm({
       cantidad,
       precio: selectedLibro.precio,
       descuento: null,
-      importe: selectedLibro.precio * cantidad,
+      importe: Math.round(selectedLibro.precio * cantidad * 100) / 100,
       stock: selectedLibro.cantidad, // Stock para mostrar en la tabla
     };
 
@@ -95,7 +90,7 @@ export function LineaFacturaForm({
       return;
     }
     
-    const nuevoImporte = linea.precio * newCantidad;
+    const nuevoImporte = Math.round(linea.precio * newCantidad * 100) / 100;
     onUpdateLinea(index, { cantidad: newCantidad, importe: nuevoImporte });
   };
 
@@ -113,7 +108,7 @@ export function LineaFacturaForm({
 
   const handlePrecioChange = (index: number, newPrecio: number) => {
     const linea = lineas[index];
-    const nuevoImporte = newPrecio * linea.cantidad;
+    const nuevoImporte = Math.round(newPrecio * linea.cantidad * 100) / 100;
     onUpdateLinea(index, { precio: newPrecio, importe: nuevoImporte });
   };
 
@@ -360,32 +355,6 @@ export function LineaFacturaForm({
                   <span className="text-sm text-muted-foreground">€</span>
                 </div>
               </div>
-            </div>
-
-            {/* Recargo de equivalencia */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Rec. Equivalencia:</label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    value={recargoEquivalencia}
-                    onChange={(e) => setRecargoEquivalencia(parseFloat(e.target.value) || 0)}
-                    className="w-20 text-right"
-                  />
-                  <span className="text-sm text-muted-foreground">%</span>
-                </div>
-              </div>
-              
-              {recargoEquivalencia > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Importe recargo:</span>
-                  <span className="font-medium">{importeRecargoEquivalencia.toFixed(2)}€</span>
-                </div>
-              )}
             </div>
 
             {/* Total final */}

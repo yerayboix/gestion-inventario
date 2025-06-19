@@ -50,7 +50,6 @@ export function FacturaForm({ factura }: FacturaFormProps) {
   const [descuentoGeneral, setDescuentoGeneral] = useState(0);
   const [ivaPorcentaje, setIvaPorcentaje] = useState(21);
   const [gastosEnvio, setGastosEnvio] = useState(0);
-  const [recargoEquivalencia, setRecargoEquivalencia] = useState(0);
 
   // Calcular totales
   const sumaYSigue = lineas.reduce((sum, linea) => sum + (linea.importe || 0), 0);
@@ -58,8 +57,7 @@ export function FacturaForm({ factura }: FacturaFormProps) {
   const baseIva = sumaYSigue - importeDescuento;
   const importeIva = baseIva * (ivaPorcentaje / 100);
   const subtotal = baseIva + importeIva;
-  const importeRecargoEquivalencia = subtotal * (recargoEquivalencia / 100);
-  const total = subtotal + gastosEnvio + importeRecargoEquivalencia;
+  const total = subtotal + gastosEnvio;
 
   const form = useForm<FacturaFormData>({
     resolver: zodResolver(facturaSchema),
@@ -90,7 +88,6 @@ export function FacturaForm({ factura }: FacturaFormProps) {
         descuento: Number(descuentoGeneral),
         base_iva: Math.round(Number(baseIva) * 100) / 100,
         iva: Number(ivaPorcentaje),
-        recargo_equivalencia: Number(recargoEquivalencia),
         gastos_envio: Number(gastosEnvio),
         total: Math.round(Number(total) * 100) / 100,
         lineas: lineas,
@@ -301,8 +298,6 @@ export function FacturaForm({ factura }: FacturaFormProps) {
               setIvaPorcentaje={setIvaPorcentaje}
               gastosEnvio={gastosEnvio}
               setGastosEnvio={setGastosEnvio}
-              recargoEquivalencia={recargoEquivalencia}
-              setRecargoEquivalencia={setRecargoEquivalencia}
             />
           </CardContent>
           {/* Botones de acción */}

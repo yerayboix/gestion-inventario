@@ -14,11 +14,15 @@ class LineaFacturaSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class LineaFacturaCreateSerializer(serializers.ModelSerializer):
+    factura = serializers.PrimaryKeyRelatedField(queryset=Factura.objects.all(), required=False)
+    
     class Meta:
         model = LineaFactura
         fields = ['libro', 'cantidad', 'precio', 'descuento', 'importe', 'factura']
 
 class LineaFacturaUpdateSerializer(serializers.ModelSerializer):
+    factura = serializers.PrimaryKeyRelatedField(queryset=Factura.objects.all(), required=False)
+    
     class Meta:
         model = LineaFactura
         fields = ['libro', 'cantidad', 'precio', 'descuento', 'importe', 'factura']

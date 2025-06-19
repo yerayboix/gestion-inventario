@@ -17,7 +17,6 @@ export interface Factura {
   descuento: number | null;
   base_iva: number | null;
   iva: number | null;
-  recargo_equivalencia: number | null;
   gastos_envio: number | null;
   total: number | null;
   notas: string | null;
@@ -39,7 +38,6 @@ export interface CreateFacturaData {
   descuento?: number;
   base_iva?: number;
   iva?: number;
-  recargo_equivalencia?: number;
   gastos_envio?: number;
   total?: number;
   notas?: string;

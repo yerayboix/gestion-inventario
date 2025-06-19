@@ -28,14 +28,12 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
   const descuento = Number(factura.descuento || 0);
   const iva = Number(factura.iva || 0);
   const gastosEnvio = Number(factura.gastos_envio || 0);
-  const recargoEquivalencia = Number(factura.recargo_equivalencia || 0);
   
   const importeDescuento = sumaYSigue * (descuento / 100);
   const baseIva = sumaYSigue - importeDescuento;
   const importeIva = baseIva * (iva / 100);
   const subtotal = baseIva + importeIva;
-  const importeRecargoEquivalencia = subtotal * (recargoEquivalencia / 100);
-  const totalCalculado = subtotal + gastosEnvio + importeRecargoEquivalencia;
+  const totalCalculado = subtotal + gastosEnvio;
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
@@ -218,20 +216,6 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Gastos de envío:</span>
                   <span className="font-medium">{formatCurrency(gastosEnvio)}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Recargo de equivalencia */}
-            {recargoEquivalencia > 0 && (
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Rec. Equivalencia:</span>
-                  <span className="font-medium">{recargoEquivalencia}%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Importe recargo:</span>
-                  <span className="font-medium">{formatCurrency(importeRecargoEquivalencia)}</span>
                 </div>
               </div>
             )}

@@ -56,7 +56,6 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
   const [descuentoGeneral, setDescuentoGeneral] = useState(Number(factura.descuento) || 0);
   const [ivaPorcentaje, setIvaPorcentaje] = useState(Number(factura.iva) || 21);
   const [gastosEnvio, setGastosEnvio] = useState(Number(factura.gastos_envio) || 0);
-  const [recargoEquivalencia, setRecargoEquivalencia] = useState(Number(factura.recargo_equivalencia) || 0);
 
   // Inicializar líneas de factura desde los datos existentes
   useEffect(() => {
@@ -80,8 +79,7 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
   const baseIva = sumaYSigue - importeDescuento;
   const importeIva = baseIva * (ivaPorcentaje / 100);
   const subtotal = baseIva + importeIva;
-  const importeRecargoEquivalencia = subtotal * (recargoEquivalencia / 100);
-  const total = subtotal + gastosEnvio + importeRecargoEquivalencia;
+  const total = subtotal + gastosEnvio;
 
   const form = useForm<FacturaFormData>({
     resolver: zodResolver(facturaSchema),
@@ -118,7 +116,6 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
         descuento: Number(descuentoGeneral),
         base_iva: Math.round(Number(baseIva) * 100) / 100,
         iva: Number(ivaPorcentaje),
-        recargo_equivalencia: Number(recargoEquivalencia),
         gastos_envio: Number(gastosEnvio),
         total: Math.round(Number(total) * 100) / 100,
       };
@@ -374,8 +371,6 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
               setIvaPorcentaje={setIvaPorcentaje}
               gastosEnvio={gastosEnvio}
               setGastosEnvio={setGastosEnvio}
-              recargoEquivalencia={recargoEquivalencia}
-              setRecargoEquivalencia={setRecargoEquivalencia}
             />
           </CardContent>
           {/* Botones de acción */}

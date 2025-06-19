@@ -63,31 +63,31 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {factura.numero || factura.numero_borrador}
-          </h1>
-          <p className="text-muted-foreground">
-            Fecha: {new Date(factura.fecha).toLocaleDateString('es-ES')}
-          </p>
-        </div>
         <div className="flex items-center gap-4">
-          <Badge className={getEstadoColor(factura.estado)}>
+          <div>
+            <h1 className="text-3xl font-bold">
+              {factura.numero || factura.numero_borrador}
+            </h1>
+            <p className="text-muted-foreground">
+              Fecha: {new Date(factura.fecha).toLocaleDateString('es-ES')}
+            </p>
+          </div>
+          <Badge className={`${getEstadoColor(factura.estado)} text-lg px-4 py-2`}>
             {factura.estado.toUpperCase()}
           </Badge>
-          <div className="flex gap-2">
-            {factura.estado === "borrador" && (
-              <>
-                <Button asChild variant="outline">
-                  <Link href={`/facturas/${factura.id}/edit`}>Editar</Link>
-                </Button>
-                <FacturaActions factura={factura} />
-              </>
-            )}
-            {factura.estado === "emitida" && (
+        </div>
+        <div className="flex gap-2">
+          {factura.estado === "borrador" && (
+            <>
+              <Button asChild variant="outline">
+                <Link href={`/facturas/${factura.id}/edit`}>Editar</Link>
+              </Button>
               <FacturaActions factura={factura} />
-            )}
-          </div>
+            </>
+          )}
+          {factura.estado === "emitida" && (
+            <FacturaActions factura={factura} />
+          )}
         </div>
       </div>
 

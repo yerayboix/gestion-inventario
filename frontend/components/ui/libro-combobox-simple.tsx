@@ -29,6 +29,7 @@ export function LibroComboboxSimple({
   const { libros, isLoading, error } = useLibros({
     search: debouncedSearchTerm,
     limit: 50,
+    conStock: true,
   });
 
   const handleToggle = (e: React.MouseEvent) => {

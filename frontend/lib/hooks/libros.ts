@@ -6,6 +6,7 @@ import { Libro } from "@/lib/types/inventario/libro";
 interface UseLibrosOptions {
   search?: string;
   limit?: number;
+  conStock?: boolean;
 }
 
 interface UseLibrosReturn {
@@ -16,7 +17,7 @@ interface UseLibrosReturn {
 }
 
 export function useLibros(options: UseLibrosOptions = {}): UseLibrosReturn {
-  const { search = "", limit = 100 } = options;
+  const { search = "", limit = 100, conStock = true } = options;
   const [libros, setLibros] = useState<Libro[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +30,7 @@ export function useLibros(options: UseLibrosOptions = {}): UseLibrosReturn {
       const params = new URLSearchParams();
       if (search) params.append("titulo", search);
       if (limit) params.append("limit", limit.toString());
+      if (conStock) params.append("cantidad_min", "1");
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario/libros/?${params.toString()}`);
       
@@ -44,7 +46,7 @@ export function useLibros(options: UseLibrosOptions = {}): UseLibrosReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [search, limit]);
+  }, [search, limit, conStock]);
 
   useEffect(() => {
     // Solo hacer fetch si el término de búsqueda está vacío o tiene al menos 2 caracteres

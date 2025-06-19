@@ -29,8 +29,8 @@ export interface Factura {
 
 export interface CreateFacturaData {
   fecha: string;
-  cliente: string;
-  nombre?: string;
+  cliente?: string;
+  nombre: string;
   nif?: string;
   domicilio?: string;
   cp_ciudad?: string;

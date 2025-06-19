@@ -17,8 +17,8 @@ import { CreateLineaFacturaData } from "@/lib/types/facturacion/linea-factura";
 import { createFacturaAction } from "@/lib/actions/facturas-actions";
 
 const facturaSchema = z.object({
-  cliente: z.string().min(1, "El cliente es requerido"),
-  nombre: z.string().optional(),
+  cliente: z.string().optional(),
+  nombre: z.string().min(1, "El nombre es requerido"),
   nif: z.string().optional(),
   domicilio: z.string().optional(),
   cp_ciudad: z.string().optional(),
@@ -66,7 +66,7 @@ export function FacturaForm({ factura }: FacturaFormProps) {
       };
 
       const result = await createFacturaAction(facturaData);
-      
+
       if (result.success) {
         toast.success("Factura creada correctamente");
         router.push("/facturas");
@@ -111,20 +111,6 @@ export function FacturaForm({ factura }: FacturaFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="cliente"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cliente *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nombre del cliente" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="nombre"
                 render={({ field }) => (
                   <FormItem>
@@ -145,20 +131,6 @@ export function FacturaForm({ factura }: FacturaFormProps) {
                     <FormLabel>NIF/CIF</FormLabel>
                     <FormControl>
                       <Input placeholder="NIF/CIF del cliente" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="telefono"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Teléfono</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Teléfono de contacto" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -192,25 +164,55 @@ export function FacturaForm({ factura }: FacturaFormProps) {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="cliente"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cliente *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nombre del cliente" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="telefono"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Teléfono</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Teléfono de contacto" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <FormField
-              control={form.control}
-              name="notas"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notas</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Notas adicionales..." 
-                      className="resize-none"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="mt-4">
+              <FormField
+                control={form.control}
+                name="notas"
+                render={({ field }) => (
+                  <FormItem className="">
+                    <FormLabel>Notas</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Notas adicionales..."
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -257,8 +259,8 @@ export function FacturaForm({ factura }: FacturaFormProps) {
           >
             Cancelar
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={isSubmitting || lineas.length === 0}
           >
             {isSubmitting ? "Guardando..." : "Guardar Factura"}

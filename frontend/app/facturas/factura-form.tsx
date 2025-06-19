@@ -10,14 +10,22 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { LineaFacturaForm } from "@/app/facturas/linea-factura-form";
 import { CreateFacturaData } from "@/lib/types/facturacion/factura";
 import { CreateLineaFacturaData } from "@/lib/types/facturacion/linea-factura";
 import { createFacturaAction } from "@/lib/actions/facturas-actions";
 import { Separator } from "@/components/ui/separator";
+import { ChevronDownIcon } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 const facturaSchema = z.object({
+  fecha: z.date({
+    required_error: "La fecha es requerida",
+  }),
   cliente: z.string().optional(),
   nombre: z.string().min(1, "El nombre es requerido"),
   nif: z.string().optional(),
@@ -56,6 +64,7 @@ export function FacturaForm({ factura }: FacturaFormProps) {
   const form = useForm<FacturaFormData>({
     resolver: zodResolver(facturaSchema),
     defaultValues: factura || {
+      fecha: new Date(),
       cliente: "",
       nombre: "",
       nif: "",
@@ -76,7 +85,7 @@ export function FacturaForm({ factura }: FacturaFormProps) {
     try {
       const facturaData: CreateFacturaData = {
         ...data,
-        fecha: new Date().toISOString().split('T')[0], // Fecha actual
+        fecha: format(data.fecha, "yyyy-MM-dd"), // Convertir Date a string YYYY-MM-DD usando date-fns
         estado: "borrador",
         descuento: Number(descuentoGeneral),
         base_iva: Math.round(Number(baseIva) * 100) / 100,
@@ -129,6 +138,45 @@ export function FacturaForm({ factura }: FacturaFormProps) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="fecha"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Fecha de Factura *</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-between font-normal"
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: es })
+                            ) : (
+                              "Seleccionar fecha"
+                            )}
+                            <ChevronDownIcon className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="nombre"

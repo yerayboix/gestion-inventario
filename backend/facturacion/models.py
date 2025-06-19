@@ -175,14 +175,14 @@ class Factura(models.Model):
 
     def generar_numero_factura(self):
         """
-        Genera el siguiente número de factura disponible para el año actual
+        Genera el siguiente número de factura disponible para el año de la factura
         """
         from django.db.models import Max
-        año_actual = timezone.now().year
+        año_factura = self.fecha.year
         
-        # Buscar la última factura del año actual
+        # Buscar la última factura del año de la factura
         ultima_factura = Factura.objects.filter(
-            numero__startswith=f'F-{año_actual}-',
+            numero__startswith=f'F-{año_factura}-',
             estado__in=['emitida', 'pagada', 'anulada']
         ).aggregate(
             Max('numero')
@@ -194,18 +194,17 @@ class Factura(models.Model):
         else:
             siguiente_numero = 1
             
-        return f'F-{año_actual}-{siguiente_numero:04d}'
+        return f'F-{año_factura}-{siguiente_numero:04d}'
 
     def generar_numero_borrador(self):
         """
-        Genera un número temporal para el borrador
+        Genera un número temporal para el borrador basado en la fecha de la factura
         """
-        timestamp = timezone.now().strftime('%d%m%Y')
         # Usar el ID si está disponible, sino usar un timestamp único
         if self.pk:
-            return f'BORRADOR-{timestamp}-{self.pk}'
+            return f'BORRADOR-{self.fecha.year}-{self.pk}'
         else:
-            return f'BORRADOR-{timestamp}'
+            return f'BORRADOR-{self.fecha.year}'
 
     def calcular_totales(self):
         """
@@ -269,8 +268,7 @@ class Factura(models.Model):
         
         # Si es nueva y es borrador, actualizar el número de borrador con el ID real
         if is_new and self.estado == 'borrador':
-            timestamp = timezone.now().strftime('%d%m%Y')
-            self.numero_borrador = f'BORRADOR-{timestamp}-{self.pk}'
+            self.numero_borrador = f'BORRADOR-{self.fecha.year}-{self.pk}'
             # Guardar solo el numero_borrador sin llamar a save() completo
             Factura.objects.filter(pk=self.pk).update(numero_borrador=self.numero_borrador)
 

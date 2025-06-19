@@ -26,7 +26,8 @@ def import_libros_from_excel(excel_path):
         for _, row in df.iterrows():
             titulo = row['TITULO']
             cantidad = row['DEP'] if pd.notna(row['DEP']) else 0
-            print(f"Titulo: {titulo}, Cantidad: {cantidad}")
+            precio = row['PRECIO'] if pd.notna(row['PRECIO']) else 0
+            print(f"Titulo: {titulo}, Cantidad: {cantidad}, Precio: {precio}")
             
             # Convertir la cantidad a entero
             try:
@@ -40,6 +41,7 @@ def import_libros_from_excel(excel_path):
                 titulo=titulo,  # Campo para buscar coincidencia
                 defaults={
                     'cantidad': cantidad,
+                    'precio': float(precio),
                 }
             )
             

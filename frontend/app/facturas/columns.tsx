@@ -78,7 +78,6 @@ export const columns: ColumnDef<Factura>[] = [
               <span className="sr-only">Ver factura</span>
             </Link>
           </Button>
-          
         </div>
       );
     },

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { FacturaActions } from "@/app/facturas/[id]/factura-actions";
 
 interface FacturaPageProps {
   params: Promise<{
@@ -80,11 +81,11 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
                 <Button asChild variant="outline">
                   <Link href={`/facturas/${factura.id}/edit`}>Editar</Link>
                 </Button>
-                <Button>Emitir Factura</Button>
+                <FacturaActions factura={factura} />
               </>
             )}
             {factura.estado === "emitida" && (
-              <Button variant="destructive">Anular Factura</Button>
+              <FacturaActions factura={factura} />
             )}
           </div>
         </div>
@@ -124,8 +125,6 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
           </div>
         </CardContent>
       </Card>
-
-
 
       {/* Líneas de factura */}
       <Card className="border-none shadow-none">

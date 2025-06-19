@@ -8,7 +8,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 
 import { esES } from '@clerk/localizations'
 import { AppSidebar } from '@/components/app-sidebar'
-import { Toaster } from 'sonner'
+import { Toaster } from '@/components/ui/sonner'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

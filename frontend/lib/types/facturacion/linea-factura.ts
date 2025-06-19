@@ -17,6 +17,7 @@ export interface CreateLineaFacturaData {
   precio: number;
   descuento?: number | null;
   importe?: number | null;
+  stock?: number; // Stock disponible para validaciones
 }
 
 export interface GetLineasFacturaParams {

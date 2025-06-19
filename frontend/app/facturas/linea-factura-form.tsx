@@ -9,6 +9,7 @@ import { DeleteIcon, DeleteIconHandle } from "@/components/ui/delete";
 import { CreateLineaFacturaData } from "@/lib/types/facturacion/linea-factura";
 import { Libro } from "@/lib/types/inventario/libro";
 import { Euro, Package, Calculator, Book } from "lucide-react";
+import { toast } from "sonner";
 
 interface LineaFacturaFormProps {
   lineas: CreateLineaFacturaData[];
@@ -30,6 +31,12 @@ export function LineaFacturaForm({
   const handleAddLinea = () => {
     if (!selectedLibro) return;
 
+    // Validar que la cantidad no exceda el stock
+    if (cantidad > selectedLibro.cantidad) {
+      toast.error(`No hay suficiente stock. Máximo disponible: ${selectedLibro.cantidad} unidades`);
+      return;
+    }
+
     const nuevaLinea: CreateLineaFacturaData = {
       libro: selectedLibro.id, // Solo el ID del libro
       titulo: selectedLibro.titulo,
@@ -37,6 +44,7 @@ export function LineaFacturaForm({
       precio: selectedLibro.precio,
       descuento: null,
       importe: selectedLibro.precio * cantidad,
+      stock: selectedLibro.cantidad, // Añadir el stock para validaciones futuras
     };
 
     onAddLinea(nuevaLinea);
@@ -48,8 +56,29 @@ export function LineaFacturaForm({
 
   const handleCantidadChange = (index: number, newCantidad: number) => {
     const linea = lineas[index];
+    
+    // Validar contra el stock disponible
+    const stockDisponible = linea.stock || 999;
+    
+    if (newCantidad > stockDisponible) {
+      toast.error(`No hay suficiente stock. Máximo disponible: ${stockDisponible} unidades`);
+      return;
+    }
+    
     const nuevoImporte = linea.precio * newCantidad;
     onUpdateLinea(index, { cantidad: newCantidad, importe: nuevoImporte });
+  };
+
+  const handleCantidadInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newCantidad = parseInt(e.target.value) || 1;
+    
+    if (selectedLibro && newCantidad > selectedLibro.cantidad) {
+      toast.error(`No hay suficiente stock. Máximo disponible: ${selectedLibro.cantidad} unidades`);
+      // No actualizar el estado, mantener el valor anterior
+      return;
+    }
+    
+    setCantidad(newCantidad);
   };
 
   const handlePrecioChange = (index: number, newPrecio: number) => {
@@ -78,8 +107,9 @@ export function LineaFacturaForm({
             <Input
               type="number"
               min="1"
+              max={selectedLibro?.cantidad || 999}
               value={cantidad}
-              onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
+              onChange={handleCantidadInputChange}
               className="pl-9"
             />
           </div>

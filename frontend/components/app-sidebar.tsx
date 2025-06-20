@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Book, Users, FileText, LayoutDashboard } from "lucide-react"
+import { Book, FileText, LayoutDashboard, Settings } from "lucide-react"
 import { SignedIn, UserButton } from "@clerk/nextjs"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -49,6 +49,16 @@ const data = {
           title: "Facturas",
           url: "/facturas",
           icon: FileText,
+        },
+      ],
+    },
+    {
+      title: "Sistema",
+      items: [
+        {
+          title: "Configuración",
+          url: "/configuracion",
+          icon: Settings,
         },
       ],
     },

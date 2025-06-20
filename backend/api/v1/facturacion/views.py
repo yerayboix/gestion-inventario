@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from django_filters.rest_framework import DjangoFilterBackend
-from facturacion.models import Factura, LineaFactura
-from .serializers import FacturaSerializer, FacturaCreateSerializer, LineaFacturaSerializer, LineaFacturaCreateSerializer, LineaFacturaUpdateSerializer
+from facturacion.models import Factura, LineaFactura, Empresa
+from .serializers import FacturaSerializer, FacturaCreateSerializer, LineaFacturaSerializer, LineaFacturaCreateSerializer, LineaFacturaUpdateSerializer, EmpresaSerializer, EmpresaUpdateSerializer
 from .filters import FacturaFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -103,4 +103,74 @@ class LineaFacturaViewSet(viewsets.ModelViewSet):
                 return LineaFacturaCreateSerializer
             else:
                 return LineaFacturaUpdateSerializer
-        return LineaFacturaSerializer 
+        return LineaFacturaSerializer
+
+class EmpresaViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar la configuración de la empresa.
+    Solo permite una empresa en la base de datos.
+    """
+    queryset = Empresa.objects.all()
+    
+    def get_serializer_class(self):
+        if self.action in ['update', 'partial_update']:
+            return EmpresaUpdateSerializer
+        return EmpresaSerializer
+    
+    def list(self, request, *args, **kwargs):
+        """
+        Obtiene la empresa. Si no existe, retorna 404.
+        """
+        empresa = Empresa.objects.first()
+        if not empresa:
+            return Response(
+                {'error': 'No se ha configurado ninguna empresa'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = self.get_serializer(empresa)
+        return Response(serializer.data)
+    
+    def create(self, request, *args, **kwargs):
+        """
+        Crea la empresa. Solo permite crear una.
+        """
+        if Empresa.objects.exists():
+            return Response(
+                {'error': 'Ya existe una empresa configurada. Use PUT/PATCH para actualizarla.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        return super().create(request, *args, **kwargs)
+    
+    def update(self, request, *args, **kwargs):
+        """
+        Actualiza la empresa existente.
+        """
+        empresa = Empresa.objects.first()
+        if not empresa:
+            return Response(
+                {'error': 'No se ha configurado ninguna empresa. Use POST para crearla.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = self.get_serializer(empresa, data=request.data, partial=kwargs.get('partial', False))
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+    
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Actualiza parcialmente la empresa existente.
+        """
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+    
+    def destroy(self, request, *args, **kwargs):
+        """
+        No permite eliminar la empresa.
+        """
+        return Response(
+            {'error': 'No se puede eliminar la configuración de la empresa'},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        ) 

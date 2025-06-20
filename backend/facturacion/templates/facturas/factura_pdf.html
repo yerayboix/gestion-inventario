@@ -127,10 +127,10 @@
     <div class="header">
         <h1>FACTURA</h1>
         <div class="company-info">
-            <h3>TU EMPRESA</h3>
-            <p>Dirección de la empresa<br>
-            Teléfono: XXX-XXX-XXX<br>
-            Email: info@tuempresa.com</p>
+            <h3>{{ empresa.nombre|default:"TU EMPRESA" }}</h3>
+            <p>{{ empresa.direccion|default:"Dirección de la empresa" }}<br>
+            NIF: {{ empresa.nif|default:"XXX-XXX-XXX" }}{% if mostrar_iban %}<br>
+            IBAN: {{ empresa.iban|default:"ES91 2100 0418 4502 0005 1332" }}{% endif %}</p>
         </div>
         <div class="invoice-info">
             <h2>FACTURA Nº {{ factura.numero|default:factura.numero_borrador }}</h2>

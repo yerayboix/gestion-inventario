@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'api',
     'facturacion',
     'inventario',
-    'reportes'
+    'reportes',
+    'backend'
 ]
 
 MIDDLEWARE = [

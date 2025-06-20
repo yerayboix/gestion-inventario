@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from weasyprint import HTML
 from django.template.loader import render_to_string
-from .models import Factura
+from .models import Factura, Empresa
 from decimal import Decimal
 
 # Create your views here.
@@ -12,6 +12,12 @@ def factura_pdf(request, factura_id):
     Genera y descarga el PDF de una factura
     """
     factura = get_object_or_404(Factura, id=factura_id)
+    
+    # Obtener parámetros de la URL
+    mostrar_iban = request.GET.get('mostrar_iban', 'false').lower() == 'true'
+    
+    # Obtener la configuración de la empresa
+    empresa = Empresa.objects.first()
     
     # Obtener las líneas de la factura
     lineas = factura.lineas.all().select_related('libro')
@@ -47,12 +53,14 @@ def factura_pdf(request, factura_id):
     # Preparar el contexto con todos los cálculos hechos
     context = {
         'factura': factura,
+        'empresa': empresa,
         'lineas_con_pvp': lineas_con_pvp,
         'subtotal': subtotal,
         'descuento_total': descuento_total,
         'iva_total': iva_total,
         'gastos_envio': factura.gastos_envio or Decimal('0.00'),
         'total': factura.total or Decimal('0.00'),
+        'mostrar_iban': mostrar_iban,
     }
     
     # Renderizar el template HTML

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from facturacion.models import Factura, LineaFactura
 from inventario.models import Libro
+from facturacion.models import Empresa
 
 class LibroSerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,4 +54,15 @@ class FacturaCreateSerializer(serializers.ModelSerializer):
         for linea_data in lineas_data:
             LineaFactura.objects.create(factura=factura, **linea_data)
         
-        return factura 
+        return factura
+
+class EmpresaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Empresa
+        fields = ['id', 'nombre', 'direccion', 'nif', 'gif', 'iban', 'created_on', 'updated_on']
+        read_only_fields = ['id', 'created_on', 'updated_on']
+
+class EmpresaUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Empresa
+        fields = ['nombre', 'direccion', 'nif', 'gif', 'iban'] 

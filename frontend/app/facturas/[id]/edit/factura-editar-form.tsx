@@ -44,7 +44,10 @@ interface FacturaEditarFormProps {
 }
 
 // Tipo extendido para líneas con ID (para edición)
-type LineaFacturaConId = CreateLineaFacturaData & { id?: number };
+type LineaFacturaConId = CreateLineaFacturaData & { 
+  id?: number; // ID de la base de datos para líneas existentes (solo para líneas que ya existen en BD)
+  stock?: number; // Stock para mostrar en la tabla
+};
 
 export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps) {
   const router = useRouter();
@@ -68,7 +71,7 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
         precio: Number(linea.precio),
         descuento: linea.descuento ? Number(linea.descuento) : 0,
         importe: Number(linea.importe),
-        stock: linea.libro.cantidad,
+        stock: linea.libro.cantidad + linea.cantidad,
       }));
       setLineas(lineasFormateadas);
     }
@@ -146,16 +149,6 @@ export function FacturaEditarForm({ factura, facturaId }: FacturaEditarFormProps
           await updateLineaFacturaAction(linea.id.toString(), updateData, facturaId);
         } else {
           // Crear nueva línea
-          console.log('Creando nueva línea con facturaId:', facturaId, 'tipo:', typeof facturaId);
-          console.log('Datos de la línea:', {
-            libro: linea.libro,
-            titulo: linea.titulo,
-            cantidad: linea.cantidad,
-            precio: linea.precio,
-            descuento: linea.descuento,
-            importe: linea.importe,
-          });
-
           await createLineaFacturaAction(facturaId, {
             libro: linea.libro,
             titulo: linea.titulo,

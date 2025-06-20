@@ -13,10 +13,6 @@ export async function createLineaFacturaAction(facturaId: string, data: CreateLi
       descuento: data.descuento,
       factura: Number(facturaId)
     };
-    
-    console.log('Datos a enviar para crear línea:', JSON.stringify(requestData, null, 2));
-    console.log('facturaId:', facturaId, 'tipo:', typeof facturaId);
-    console.log('factura en requestData:', requestData.factura, 'tipo:', typeof requestData.factura);
 
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/facturacion/lineas-factura/`,
@@ -53,8 +49,6 @@ export async function updateLineaFacturaAction(id: string, data: UpdateLineaFact
       descuento: data.descuento,
       factura: Number(facturaId)
     };
-    
-    console.log('Datos a enviar para actualizar línea:', JSON.stringify(requestData, null, 2));
 
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/facturacion/lineas-factura/${id}/`,

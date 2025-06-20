@@ -91,7 +91,7 @@ export function FacturaActions({ factura }: FacturaActionsProps) {
       
       if (result.success) {
         toast.success("Factura eliminada correctamente");
-        router.push("/facturas");
+        window.location.href = "/facturas";
       } else {
         toast.error(result.error || "Error al eliminar la factura");
       }

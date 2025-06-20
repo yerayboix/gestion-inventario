@@ -14,6 +14,7 @@ import { toast } from "sonner";
 // Tipo extendido para manejar propiedades adicionales en el frontend
 interface LineaFacturaWithStock extends CreateLineaFacturaData {
   stock?: number;
+  id?: number; // ID de la base de datos para líneas existentes
 }
 
 interface LineaFacturaFormProps {
@@ -205,7 +206,7 @@ export function LineaFacturaForm({
           </TableHeader>
           <TableBody>
             {lineas.map((linea, index) => (
-              <TableRow key={index}>
+              <TableRow key={linea.id ? `linea-${linea.id}` : `new-linea-${linea.libro}-${index}`}>
                 <TableCell>{linea.titulo}</TableCell>
                 <TableCell>
                   <div className="relative">

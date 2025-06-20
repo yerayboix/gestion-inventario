@@ -74,8 +74,6 @@ export async function getFactura(id: number) {
 export async function createFactura(factura: CreateFacturaData) {
   await requireUser();
 
-  console.log('Datos a enviar:', JSON.stringify(factura, null, 2));
-
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/`,
     {

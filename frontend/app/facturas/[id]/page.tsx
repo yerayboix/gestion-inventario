@@ -126,6 +126,25 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
         </CardContent>
       </Card>
 
+      {/* Notas o Motivo de Anulación */}
+      {(factura.notas || factura.estado === 'anulada') && (
+        <Card className="border-none shadow-none">
+          <CardHeader>
+            <CardTitle>
+              {factura.estado === 'anulada' ? 'Motivo de Anulación' : 'Notas'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm whitespace-pre-wrap">
+              {factura.estado === 'anulada' 
+                ? (factura.motivo_anulacion || 'No se especificó motivo de anulación')
+                : factura.notas
+              }
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Líneas de factura */}
       <Card className="border-none shadow-none">
         <CardHeader>
@@ -240,18 +259,6 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Notas */}
-      {factura.notas && (
-        <Card className="border-none shadow-none">
-          <CardHeader>
-            <CardTitle>Notas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm whitespace-pre-wrap">{factura.notas}</p>
-          </CardContent>
-        </Card>
       )}
     </div>
   );

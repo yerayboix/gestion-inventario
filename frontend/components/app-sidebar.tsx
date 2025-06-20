@@ -39,12 +39,7 @@ const data = {
           title: "Libros",
           url: "/libros",
           icon: Book,
-        },
-        {
-          title: "Clientes",
-          url: "/clientes",
-          icon: Users,
-        },
+        }
       ],
     },
     {

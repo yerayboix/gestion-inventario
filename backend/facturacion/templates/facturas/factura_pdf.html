@@ -75,17 +75,11 @@
             font-weight: bold;
         }
         
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 20px;
-            margin-top: 30px;
-        }
-        
         .notes {
             padding: 15px;
             border: 1px solid #ddd;
             background-color: #f9f9f9;
+            margin-bottom: 20px;
         }
         
         .notes h3 {
@@ -93,10 +87,16 @@
         }
         
         .totals {
-            width: 350px;
-            border: 1px solid #ddd;
+            margin: 30px 0;
             padding: 15px;
+            border: 1px solid #ddd;
             background-color: #f9f9f9;
+            width: 100%;
+        }
+        
+        .totals h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
         }
         
         .total-row {
@@ -129,7 +129,8 @@
         <div class="company-info">
             <h3>{{ empresa.nombre|default:"TU EMPRESA" }}</h3>
             <p>{{ empresa.direccion|default:"Dirección de la empresa" }}<br>
-            NIF: {{ empresa.nif|default:"XXX-XXX-XXX" }}{% if mostrar_iban %}<br>
+            NIF: {{ empresa.nif|default:"XXX-XXX-XXX" }}<br>
+            GIF: {{ empresa.gif|default:"12345678" }}{% if mostrar_iban %}<br>
             IBAN: {{ empresa.iban|default:"ES91 2100 0418 4502 0005 1332" }}{% endif %}</p>
         </div>
         <div class="invoice-info">
@@ -188,51 +189,48 @@
         </tbody>
     </table>
 
-    <div class="grid-container">
-        {% if factura.notas %}
-        <div class="notes">
-            <h3>NOTAS</h3>
-            <p>{{ factura.notas }}</p>
+    {% if factura.notas %}
+    <div class="notes">
+        <h3>NOTAS</h3>
+        <p>{{ factura.notas }}</p>
+    </div>
+    {% endif %}
+    <div class="client-info">
+        <h3>TOTALES</h3>
+        {% if factura.base_iva %}
+        <div class="total-row">
+            <span>Base Imponible:</span>
+            <span>{{ factura.base_iva|floatformat:2 }} €</span>
         </div>
-        {% else %}
-        <div></div>
         {% endif %}
-        <div class="totals">
-            {% if factura.base_iva %}
-            <div class="total-row">
-                <span>Base Imponible:</span>
-                <span>{{ factura.base_iva|floatformat:2 }} €</span>
-            </div>
-            {% endif %}
-            
-            {% if descuento_total > 0 %}
-            <div class="total-row">
-                <span>Descuento ({{ factura.descuento|floatformat:2 }}%):</span>
-                <span>-{{ descuento_total|floatformat:2 }} €</span>
-            </div>
-            {% endif %}
-            
-            {% if iva_total > 0 %}
-            <div class="total-row">
-                <span>IVA ({{ factura.iva|floatformat:2 }}%):</span>
-                <span>{{ iva_total|floatformat:2 }} €</span>
-            </div>
-            {% endif %}
-            
-            {% if gastos_envio > 0 %}
-            <div class="total-row">
-                <span>Gastos de Envío:</span>
-                <span>{{ gastos_envio|floatformat:2 }} €</span>
-            </div>
-            {% endif %}
-            
-            {% if total > 0 %}
-            <div class="total-row final">
-                <span>TOTAL:</span>
-                <span>{{ total|floatformat:2 }} €</span>
-            </div>
-            {% endif %}
+        
+        {% if descuento_total > 0 %}
+        <div class="total-row">
+            <span>Descuento ({{ factura.descuento|floatformat:2 }}%):</span>
+            <span>-{{ descuento_total|floatformat:2 }} €</span>
         </div>
+        {% endif %}
+        
+        {% if iva_total > 0 %}
+        <div class="total-row">
+            <span>IVA ({{ factura.iva|floatformat:2 }}%):</span>
+            <span>{{ iva_total|floatformat:2 }} €</span>
+        </div>
+        {% endif %}
+        
+        {% if gastos_envio > 0 %}
+        <div class="total-row">
+            <span>Gastos de Envío:</span>
+            <span>{{ gastos_envio|floatformat:2 }} €</span>
+        </div>
+        {% endif %}
+        
+        {% if total > 0 %}
+        <div class="total-row final">
+            <span>TOTAL:</span>
+            <span>{{ total|floatformat:2 }} €</span>
+        </div>
+        {% endif %}
     </div>
 
     <div class="footer">

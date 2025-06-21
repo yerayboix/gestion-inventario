@@ -9,6 +9,7 @@ import {
   BreadcrumbSeparator 
 } from "@/components/ui/breadcrumb";
 import { FacturaForm } from "@/app/facturas/factura-form";
+import { PageHeader } from "@/components/page-header";
 
 export default function NuevaFacturaPage() {
   return (
@@ -26,6 +27,12 @@ export default function NuevaFacturaPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      
+      <PageHeader 
+        title="Nueva Factura" 
+        description="Crea una nueva factura para un cliente"
+      />
+      
       <Suspense fallback={<div>Cargando...</div>}>
         <FacturaForm />
       </Suspense>

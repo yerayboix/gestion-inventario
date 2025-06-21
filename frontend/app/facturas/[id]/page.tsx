@@ -9,6 +9,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { FacturaActions } from "@/app/facturas/[id]/factura-actions";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface FacturaPageProps {
   params: Promise<{
@@ -62,8 +63,10 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-2">
         <div className="flex items-center gap-4">
+          <SidebarTrigger />
+          <div className="w-px h-4 bg-gray-300"></div>
           <div>
             <h1 className="text-3xl font-bold">
               {factura.numero || factura.numero_borrador}
@@ -72,6 +75,7 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
               Fecha: {new Date(factura.fecha).toLocaleDateString('es-ES')}
             </p>
           </div>
+          <div className="w-px h-4 bg-gray-300"></div>
           <Badge className={`${getEstadoColor(factura.estado)} text-lg px-4 py-2`}>
             {factura.estado.toUpperCase()}
           </Badge>
@@ -136,7 +140,7 @@ export default async function FacturaPage({ params }: FacturaPageProps) {
           </CardHeader>
           <CardContent>
             <p className="text-sm whitespace-pre-wrap">
-              {factura.estado === 'anulada' 
+              {factura.estado === 'anulada'
                 ? (factura.motivo_anulacion || 'No se especificó motivo de anulación')
                 : factura.notas
               }

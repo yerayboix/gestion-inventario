@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@/components/ui/plus";
 import Link from "next/link";
 import { FacturasSkeleton } from "./facturas-skeleton";
+import { PageHeader } from "@/components/page-header";
 
 interface FacturasPageProps {
   searchParams: {
@@ -24,17 +25,20 @@ export default async function FacturasPage({ searchParams }: FacturasPageProps) 
     <div className="flex flex-1 flex-col gap-4 p-4 md:p-6 py-10">
       <div className="grid grid-cols-1 @[400px]:grid-cols-2 @[800px]:grid-cols-3 @[1200px]:grid-cols-4 gap-2">
         <div className="col-span-4 @[400px]:col-span-4 @[800px]:col-span-4 @[1200px]:col-span-4">
-          <h1 className="text-2xl font-bold">Facturas</h1>
-          
-          <div className="flex justify-between gap-2">
+          <PageHeader 
+            title="Facturas" 
+            description="Gestiona las facturas y el proceso de facturación"
+            actions={
+              <Button asChild>
+                <Link href="/facturas/nueva">
+                  <PlusIcon className="h-4 w-4" />
+                  <span className="hidden sm:block">Nueva factura</span>
+                </Link>
+              </Button>
+            }
+          >
             <SearchForm defaultValue={numero || ""} />
-            <Button asChild>
-              <Link href="/facturas/nueva">
-                <PlusIcon className="h-4 w-4" />
-                <span className="hidden sm:block">Nueva factura</span>
-              </Link>
-            </Button>
-          </div>
+          </PageHeader>
         </div>
       </div>
 

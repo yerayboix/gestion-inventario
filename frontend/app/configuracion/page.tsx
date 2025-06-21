@@ -2,16 +2,15 @@ import { Suspense } from "react";
 import { EmpresaForm } from "@/app/configuracion/empresa-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/page-header";
 
 export default function ConfiguracionPage() {
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Configuración</h1>
-        <p className="text-muted-foreground">
-          Gestiona la configuración de tu empresa para las facturas
-        </p>
-      </div>
+    <div className="flex flex-1 flex-col gap-4 p-4 md:p-6 py-10">
+      <PageHeader 
+        title="Configuración" 
+        description="Gestiona la configuración de tu empresa para las facturas"
+      />
 
       <Card>
         <CardHeader>

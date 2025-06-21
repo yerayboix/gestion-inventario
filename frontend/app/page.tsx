@@ -1,30 +1,17 @@
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getLibros } from "../lib/data/inventario/libros";
+import { PageHeader } from "@/components/page-header";
 
 export default async function Home() {
   const libros = await getLibros();
   return (
-    <>
-      <header className="flex h-16 shrink-0 items-center gap-2 px-4">
-        <SidebarTrigger className="-ml-1" />
-        <Separator
-          orientation="vertical"
-          className="mr-2 data-[orientation=vertical]:h-4"
-        />
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbPage>Resumen trimestral de ventas</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </header>
+    <div className="flex flex-1 flex-col gap-4 p-4 md:p-6 py-10">
+      <PageHeader 
+        title="Resumen trimestral de ventas" 
+        description="Vista general de las ventas y el inventario"
+      />
       <div className="flex justify-center items-center">
-        <h1 className="text-2xl font-bold">Resumen trimestral de ventas</h1>
         <pre>{JSON.stringify(libros, null, 2)}</pre>
       </div>
-    </>
+    </div>
   );
 }

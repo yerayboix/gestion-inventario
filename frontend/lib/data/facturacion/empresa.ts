@@ -13,6 +13,11 @@ export async function getEmpresa(): Promise<Empresa> {
         "X-API-Key": process.env.API_KEY || "",
         "Content-Type": "application/json",
       },
+      cache: 'force-cache',
+      next: { 
+        revalidate: 3600, // 1 hora (configuración estable)
+        tags: ['empresa']
+      }
     }
   );
 

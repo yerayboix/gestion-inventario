@@ -39,6 +39,11 @@ export async function getFacturas({ page = 1, pageSize = 10, estado, cliente, nu
         "X-API-Key": process.env.API_KEY || "",
         "Content-Type": "application/json",
       },
+      cache: 'force-cache',
+      next: { 
+        revalidate: 60, // 1 minuto
+        tags: ['facturas', 'lista']
+      }
     }
   );
 
@@ -60,6 +65,11 @@ export async function getFactura(id: number) {
         "X-API-Key": process.env.API_KEY || "",
         "Content-Type": "application/json",
       },
+      cache: 'force-cache',
+      next: { 
+        revalidate: 300, // 5 minutos
+        tags: ['factura', 'detalle']
+      }
     }
   );
 

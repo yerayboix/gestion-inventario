@@ -1,14 +1,14 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { createFactura, updateFactura, emitirFactura, anularFactura, deleteFactura, downloadFacturaPDF } from "../data/facturacion/facturas";
 import { Factura, CreateFacturaData } from "../types/facturacion/factura";
 import type { ActionResponse } from "@/lib/types/common";
+import { invalidateFacturasCache } from "../cache-utils";
 
 export async function createFacturaAction(data: CreateFacturaData): Promise<ActionResponse> {
   try {
     await createFactura(data);
-    revalidatePath("/facturas");
+    await invalidateFacturasCache();
     return { success: true };
   } catch {
     return { success: false, error: "Error al crear la factura" };
@@ -18,7 +18,7 @@ export async function createFacturaAction(data: CreateFacturaData): Promise<Acti
 export async function updateFacturaAction(id: string, data: Partial<Factura>): Promise<ActionResponse> {
   try {
     await updateFactura(id, data);
-    revalidatePath(`/facturas/${id}`);
+    await invalidateFacturasCache();
     return { success: true };
   } catch {
     return { success: false, error: "Error al actualizar la factura" };
@@ -28,7 +28,7 @@ export async function updateFacturaAction(id: string, data: Partial<Factura>): P
 export async function emitirFacturaAction(id: string): Promise<ActionResponse> {
   try {
     await emitirFactura(id);
-    revalidatePath(`/facturas/${id}`);
+    await invalidateFacturasCache();
     return { success: true };
   } catch {
     return { success: false, error: "Error al emitir la factura" };
@@ -38,7 +38,7 @@ export async function emitirFacturaAction(id: string): Promise<ActionResponse> {
 export async function anularFacturaAction(id: string, motivo: string): Promise<ActionResponse> {
   try {
     await anularFactura(id, motivo);
-    revalidatePath(`/facturas/${id}`);
+    await invalidateFacturasCache();
     return { success: true };
   } catch {
     return { success: false, error: "Error al anular la factura" };
@@ -48,7 +48,7 @@ export async function anularFacturaAction(id: string, motivo: string): Promise<A
 export async function deleteFacturaAction(id: string): Promise<ActionResponse> {
   try {
     await deleteFactura(id);
-    revalidatePath("/facturas");
+    await invalidateFacturasCache();
     return { success: true };
   } catch {
     return { success: false, error: "Error al eliminar la factura" };

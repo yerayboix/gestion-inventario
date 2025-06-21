@@ -4,6 +4,7 @@ import { getLibros } from "../../lib/data/inventario/libros";
 import { SearchForm } from "@/app/libros/search-form";
 import { DataTable } from "@/components/ui/data-table";
 import { CreateLibroDialog } from "./create-libro-dialog";
+import { LibrosSkeleton } from "./libros-skeleton";
 
 interface LibrosPageProps {
   searchParams: {
@@ -26,7 +27,7 @@ export default async function LibrosPage({ searchParams }: LibrosPageProps) {
           <CreateLibroDialog />
         </div>
       </div>
-      <Suspense key={`${pageNumber}-${searchQuery}`} fallback={<div>Cargando...</div>}>
+      <Suspense key={`${pageNumber}-${searchQuery}`} fallback={<LibrosSkeleton />}>
         <LibrosTable page={pageNumber} titulo={searchQuery} />
       </Suspense>
     </div>

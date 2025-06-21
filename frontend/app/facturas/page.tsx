@@ -6,6 +6,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@/components/ui/plus";
 import Link from "next/link";
+import { FacturasSkeleton } from "./facturas-skeleton";
 
 interface FacturasPageProps {
   searchParams: {
@@ -33,7 +34,7 @@ export default async function FacturasPage({ searchParams }: FacturasPageProps) 
           </Button>
         </div>
       </div>
-      <Suspense key={`${pageNumber}-${estado}-${numero}`} fallback={<div>Cargando...</div>}>
+      <Suspense key={`${pageNumber}-${estado}-${numero}`} fallback={<FacturasSkeleton />}>
         <FacturasTable page={pageNumber} estado={estado} numero={numero} />
       </Suspense>
     </div>

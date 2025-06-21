@@ -184,3 +184,28 @@ export async function deleteFactura(id: string) {
 
   return true;
 }
+
+export async function downloadFacturaPDF(id: string, mostrarIban: boolean = false) {
+  await requireUser();
+
+  const searchParams = new URLSearchParams();
+  if (mostrarIban) {
+    searchParams.append('mostrar_iban', 'true');
+  }
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/facturacion/facturas/${id}/pdf/?${searchParams.toString()}`,
+    {
+      headers: {
+        "X-API-Key": process.env.API_KEY || "",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Error al descargar el PDF de la factura");
+  }
+
+  const blob = await response.blob();
+  return blob;
+}

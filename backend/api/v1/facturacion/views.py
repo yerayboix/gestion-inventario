@@ -6,6 +6,8 @@ from .filters import FacturaFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
+from django.http import HttpResponse
+from facturacion.views import factura_pdf
 
 class FacturaViewSet(viewsets.ModelViewSet):
     queryset = Factura.objects.all().order_by('-fecha')
@@ -93,6 +95,14 @@ class FacturaViewSet(viewsets.ModelViewSet):
                 {'error': 'Error interno del servidor'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    @action(detail=True, methods=['get'])
+    def pdf(self, request, pk=None):
+        """
+        Genera y descarga el PDF de una factura
+        """
+        factura = self.get_object()
+        return factura_pdf(request, factura.id)
 
 class LineaFacturaViewSet(viewsets.ModelViewSet):
     queryset = LineaFactura.objects.all().order_by('libro__titulo')

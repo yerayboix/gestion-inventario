@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createFactura, updateFactura, emitirFactura, anularFactura, deleteFactura } from "../data/facturacion/facturas";
+import { createFactura, updateFactura, emitirFactura, anularFactura, deleteFactura, downloadFacturaPDF } from "../data/facturacion/facturas";
 import { Factura, CreateFacturaData } from "../types/facturacion/factura";
 import type { ActionResponse } from "@/lib/types/common";
 
@@ -52,5 +52,14 @@ export async function deleteFacturaAction(id: string): Promise<ActionResponse> {
     return { success: true };
   } catch {
     return { success: false, error: "Error al eliminar la factura" };
+  }
+}
+
+export async function downloadFacturaPDFAction(id: string, mostrarIban: boolean = false): Promise<{ success: boolean; blob?: Blob; error?: string }> {
+  try {
+    const blob = await downloadFacturaPDF(id, mostrarIban);
+    return { success: true, blob };
+  } catch {
+    return { success: false, error: "Error al descargar el PDF de la factura" };
   }
 }

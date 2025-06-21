@@ -4,6 +4,7 @@ import type { Factura } from "@/lib/types/facturacion/factura";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileTextIcon } from "@/components/ui/file-text";
+import { DownloadPDFDialog } from "@/components/ui/download-pdf-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 
 const estadoVariants = {
@@ -65,6 +66,9 @@ export const columns: ColumnDef<Factura>[] = [
     id: "actions",
     cell: ({ row }) => {
       const factura = row.original;
+      const numero = factura.estado === "borrador" 
+        ? factura.numero_borrador 
+        : factura.numero;
 
       return (
         <div className="flex items-center gap-2">
@@ -78,6 +82,10 @@ export const columns: ColumnDef<Factura>[] = [
               <span className="sr-only">Ver factura</span>
             </Link>
           </Button>
+          <DownloadPDFDialog 
+            facturaId={factura.id.toString()} 
+            facturaNumero={numero || undefined}
+          />
         </div>
       );
     },

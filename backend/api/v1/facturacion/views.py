@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
-from facturacion.views import factura_pdf
+from facturacion.views import FacturaPDFView
 
 class FacturaViewSet(viewsets.ModelViewSet):
     queryset = Factura.objects.all().order_by('-fecha')
@@ -99,10 +99,17 @@ class FacturaViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def pdf(self, request, pk=None):
         """
-        Genera y descarga el PDF de una factura
+        Genera y descarga el PDF de una factura usando django-weasyprint
         """
-        factura = self.get_object()
-        return factura_pdf(request, factura.id)
+        try:
+            factura = self.get_object()
+            view = FacturaPDFView.as_view()
+            return view(request, pk=factura.id)
+        except Exception as e:
+            return Response(
+                {'error': f'Error generando PDF: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class LineaFacturaViewSet(viewsets.ModelViewSet):
     queryset = LineaFactura.objects.all().order_by('libro__titulo')

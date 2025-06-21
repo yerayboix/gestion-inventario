@@ -75,12 +75,12 @@ export function CreateLibroDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2"
+        <Button className="gap-2 w-fit"
           onMouseEnter={() => plusIconRef.current?.startAnimation()}
           onMouseLeave={() => plusIconRef.current?.stopAnimation()}
         >
           <PlusIcon ref={plusIconRef} className="h-4 w-4" />
-          Crear Libro
+          <span className="hidden sm:block">Crear libro</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

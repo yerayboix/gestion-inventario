@@ -51,7 +51,7 @@ export function SearchForm({ defaultValue }: SearchFormProps) {
             placeholder="Buscar por título..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            className="w-[300px] pr-8"
+            className="w-full sm:w-[300px] pr-8"
           />
           {showClearButton && (
             <button
@@ -69,8 +69,8 @@ export function SearchForm({ defaultValue }: SearchFormProps) {
           onMouseEnter={() => searchIconRef.current?.startAnimation()}
           onMouseLeave={() => searchIconRef.current?.stopAnimation()}
         >
-          <SearchIcon ref={searchIconRef} className="h-4 w-4 mr-2" />
-          Buscar
+          <SearchIcon ref={searchIconRef} className="h-4 w-4" />
+          <span className="hidden sm:block">Buscar</span>
         </Button>
       </form>
     </div>

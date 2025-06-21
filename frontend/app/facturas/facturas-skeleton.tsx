@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function FacturasSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4">      
       {/* Table skeleton */}
       <div className="rounded-md border">
         {/* Table header */}

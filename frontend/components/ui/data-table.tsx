@@ -112,8 +112,8 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between py-4">
-        <p className="text-sm text-muted-foreground">
+      <div className="flex flex-col sm:flex-row items-center justify-between py-4">
+        <p className="text-sm sm:mb-0 mb-2 text-muted-foreground">
           Mostrando página {currentPage} de {pageCount} ({totalItems} elementos)
         </p>
         <div className="flex items-center space-x-2">
@@ -130,19 +130,20 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => updateQueryParams("page", (currentPage - 1).toString())}
             disabled={currentPage <= 1}
+            className="hidden sm:flex"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
           </Button>
-          {Array.from({ length: Math.min(5, pageCount) }, (_, i) => {
+          {Array.from({ length: Math.min(4, pageCount) }, (_, i) => {
             let pageNum;
-            if (pageCount <= 5) {
+            if (pageCount <= 4) {
               pageNum = i + 1;
-            } else if (currentPage <= 3) {
+            } else if (currentPage <= 2) {
               pageNum = i + 1;
-            } else if (currentPage >= pageCount - 2) {
-              pageNum = pageCount - 4 + i;
+            } else if (currentPage >= pageCount - 1) {
+              pageNum = pageCount - 3 + i;
             } else {
-              pageNum = currentPage - 2 + i;
+              pageNum = currentPage - 1 + i;
             }
             
             return (
@@ -161,6 +162,7 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => updateQueryParams("page", (currentPage + 1).toString())}
             disabled={currentPage >= pageCount}
+            className="hidden sm:flex"
           >
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>

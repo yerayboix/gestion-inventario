@@ -12,15 +12,14 @@ import { toast } from "sonner";
 import { getEmpresaAction, updateEmpresaAction, createEmpresaAction } from "@/lib/actions/empresa-actions";
 import type { Empresa } from "@/lib/types/facturacion/empresa";
 
-const empresaSchema = z.object({
+const formSchema = z.object({
   nombre: z.string().min(1, "El nombre es obligatorio"),
   direccion: z.string().min(1, "La dirección es obligatoria"),
   nif: z.string().min(1, "El NIF es obligatorio"),
-  gif: z.string().min(1, "El GIF es obligatorio"),
   iban: z.string().min(1, "El IBAN es obligatorio"),
 });
 
-type EmpresaFormData = z.infer<typeof empresaSchema>;
+type EmpresaFormData = z.infer<typeof formSchema>;
 
 export function EmpresaForm() {
   const [empresa, setEmpresa] = useState<Empresa | null>(null);
@@ -33,7 +32,7 @@ export function EmpresaForm() {
     formState: { errors },
     reset,
   } = useForm<EmpresaFormData>({
-    resolver: zodResolver(empresaSchema),
+    resolver: zodResolver(formSchema),
   });
 
   useEffect(() => {
@@ -129,32 +128,17 @@ export function EmpresaForm() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="gif">GIF *</Label>
-          <Input
-            id="gif"
-            {...register("gif")}
-            placeholder="12345678"
-            className={errors.gif ? "border-red-500" : ""}
-          />
-          {errors.gif && (
-            <p className="text-sm text-red-500">{errors.gif.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="iban">IBAN *</Label>
-          <Input
-            id="iban"
-            {...register("iban")}
-            placeholder="ES91 2100 0418 4502 0005 1332"
-            className={errors.iban ? "border-red-500" : ""}
-          />
-          {errors.iban && (
-            <p className="text-sm text-red-500">{errors.iban.message}</p>
-          )}
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="iban">IBAN *</Label>
+        <Input
+          id="iban"
+          {...register("iban")}
+          placeholder="ES91 2100 0418 4502 0005 1332"
+          className={errors.iban ? "border-red-500" : ""}
+        />
+        {errors.iban && (
+          <p className="text-sm text-red-500">{errors.iban.message}</p>
+        )}
       </div>
 
       <div className="flex items-center justify-between pt-4">

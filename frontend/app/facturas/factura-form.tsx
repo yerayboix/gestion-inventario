@@ -48,7 +48,7 @@ export function FacturaForm({ factura }: FacturaFormProps) {
 
   // Estados para los cálculos de la factura
   const [descuentoGeneral, setDescuentoGeneral] = useState(0);
-  const [ivaPorcentaje, setIvaPorcentaje] = useState(21);
+  const [ivaPorcentaje, setIvaPorcentaje] = useState(4);
   const [gastosEnvio, setGastosEnvio] = useState(0);
 
   // Calcular totales

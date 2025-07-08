@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Libro } from "@/lib/types/inventario/libro";
+import { searchLibrosAction } from "../actions/libros-actions";
 
 interface UseLibrosOptions {
   search?: string;
@@ -27,19 +28,14 @@ export function useLibros(options: UseLibrosOptions = {}): UseLibrosReturn {
       setIsLoading(true);
       setError(null);
 
-      const params = new URLSearchParams();
-      if (search) params.append("titulo", search);
-      if (limit) params.append("limit", limit.toString());
-      if (conStock) params.append("cantidad_min", "1");
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventario/libros/?${params.toString()}`);
+      const result = await searchLibrosAction(search, limit, conStock);
       
-      if (!response.ok) {
-        throw new Error("Error al cargar los libros");
+      if (result.success && result.data) {
+        setLibros(result.data);
+      } else {
+        setError(result.error || "Error desconocido");
+        setLibros([]);
       }
-
-      const data = await response.json();
-      setLibros(data.results || data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");
       setLibros([]);

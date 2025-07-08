@@ -64,11 +64,6 @@ export async function getFactura(id: number) {
       headers: {
         "X-API-Key": process.env.API_KEY || "",
         "Content-Type": "application/json",
-      },
-      cache: 'force-cache',
-      next: { 
-        revalidate: 300, // 5 minutos
-        tags: ['factura', 'detalle']
       }
     }
   );
